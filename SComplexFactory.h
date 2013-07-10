@@ -20,7 +20,7 @@ public:
     typedef boost::shared_ptr<SComplex> SComplexPtr;
 
     static SComplexPtr Create();
-    static SComplexPtr Load(const char *);
+    static SComplexPtr Load(const char *filename);
 };
 
 template <int DIM>
@@ -32,7 +32,7 @@ public:
     typedef boost::shared_ptr<SComplex> SComplexPtr;
 
     static SComplexPtr Create();
-    static SComplexPtr Load(const char *);
+    static SComplexPtr Load(const char *filename);
 
 private:
 
@@ -51,7 +51,7 @@ public:
     typedef boost::shared_ptr<SComplex> SComplexPtr;
 
     static SComplexPtr Create();
-    static SComplexPtr Load(const char *);
+    static SComplexPtr Load(const char *filename);
 };
 
 #endif	/* SCOMPLEXFACTORY_H */

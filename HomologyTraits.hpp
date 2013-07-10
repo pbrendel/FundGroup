@@ -28,24 +28,27 @@
 #include <redHom/complex/cubical/CubSComplex.hpp>
 #include <redHom/complex/simplicial/SimplexSComplex.hpp>
 
-//int Zp::p = 1009;
-//int Zp::p = 2;
-
 template <int DIM>
-class HomologyTraits
+class CubicalHomology
 {
 public:
 
     typedef CubSComplex<DIM>                                SComplexType;
-    // typedef SimplexSComplex                              SComplexType;
     typedef typename SComplexType::Cell                     CellType;
     typedef double                                          ScalarType;
     typedef SComplexFiltrT<SComplexType, ScalarType>        FilterType;
     typedef ChainT<ChainContainer<CellType, ScalarType> >   ChainType;
+};
 
-    //typedef capd::vectalg::Matrix<ScalarType, 0, 0> MatrixType;
-    //typedef capd::vectalg::Vector<ScalarType, 0> VectorType;
-    //
+class SimplicialHomology
+{
+public:
+
+    typedef SimplexSComplex                                 SComplexType;
+    typedef typename SComplexType::Cell                     CellType;
+    typedef double                                          ScalarType;
+    typedef SComplexFiltrT<SComplexType, ScalarType>        FilterType;
+    typedef ChainT<ChainContainer<CellType, ScalarType> >   ChainType;
 };
 
 #endif	/* HOMOLOGYTRAITS_HPP */

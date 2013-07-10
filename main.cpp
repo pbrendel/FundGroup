@@ -11,8 +11,17 @@
 
 int main(int argc, char** argv)
 {
-    FundGroup<HomologyTraits<3> > f;
-    std::cout<<f<<std::endl;
+    if (argc > 1)
+    {
+        std::cout<<argv[1]<<std::endl;
+        FundGroup<SimplicialHomology> G(argv[1]);
+        std::cout<<G<<std::endl;
+    }
+    else
+    {
+        FundGroup<CubicalHomology<3> > G;
+        std::cout<<G<<std::endl;
+    }
     return 0;
 }
 

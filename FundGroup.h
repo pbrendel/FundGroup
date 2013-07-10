@@ -22,6 +22,7 @@ public:
     typedef boost::shared_ptr<SComplex>     SComplexPtr;
 
     FundGroup();
+    FundGroup(const char *filename);
     FundGroup(SComplexPtr complex);
 
     friend std::ostream& operator<<(std::ostream &str, FundGroup g)
@@ -45,7 +46,7 @@ private:
 
     SComplexPtr             _complex;
     FilterPtr               _filter;
-    CellsByDim              _criticalCellsByDim;
+    CellsByDim              _cellsByDim;
     std::map<Cell, Chain>   _reduced2Boundaries;
     Cells                   _spanningTreeEdges;
     Relators                _relators;

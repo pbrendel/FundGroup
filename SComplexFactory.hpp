@@ -244,7 +244,53 @@ template <typename Traits>
 typename SComplexFactory<SComplex<Traits> >::SComplexPtr
 SComplexFactory<SComplex<Traits> >::Load(const char *filename)
 {
-    throw std::logic_error("not implemented");
+    std::ifstream input(filename);
+    if (!input.is_open())
+    {
+        throw std::runtime_error(std::string("cannot open file ") + filename);
+    }
+
+    Dims dims;
+    KappaMap kappaMap;
+    int topDim = 0;
+    int totalCellsCount = 0;
+    int cellsCountDim0 = 0;
+
+    std::cout<<"reading SComplex"<<std::endl;
+    input>>topDim;
+    std::cout<<"top dim = "<<topDim<<std::endl;
+    for (int dim = 0; dim <= topDim; dim++)
+    {
+        int cellsCount = 0;
+        input>>cellsCount;
+        std::cout<<cellsCount<<" in dim "<<dim<<std::endl;
+        if (dim == 0)
+        {
+            cellsCountDim0 = cellsCount;
+        }
+        totalCellsCount += cellsCount;
+        for (int i = 0; i < cellsCount; i++)
+        {
+            dims.push_back(dim);
+        }
+    }
+    std::cout<<"total cells count = "<<totalCellsCount<<std::endl;
+
+    for (int i = 0; i < totalCellsCount - cellsCountDim0; i++)
+    {
+        int cell;
+        int boundary;
+        int index;
+        input>>cell;
+        input>>boundary;
+        input>>index;
+        kappaMap.push_back(boost::tuple<Id, Id, int>(static_cast<Id>(cell),
+                                                     static_cast<Id>(boundary),
+                                                     index));
+    }
+    input.close();
+    std::cout<<"data read successfully"<<std::endl;
+    return SComplexPtr(new SComplexType(3, dims, kappaMap, 1));
 }
 
 template <typename Traits>

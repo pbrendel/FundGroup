@@ -18,6 +18,7 @@
 template <typename ComplexSupplierType>
 FundGroup<ComplexSupplierType>::FundGroup(const char *filename)
 {
+    std::cout<<"creating complex"<<std::endl;
     _complexSupplier = ComplexSupplierPtr(new ComplexSupplier(filename));
     Compute();
 }
@@ -25,6 +26,7 @@ FundGroup<ComplexSupplierType>::FundGroup(const char *filename)
 template <typename ComplexSupplierType>
 FundGroup<ComplexSupplierType>::FundGroup(DebugComplexType debugComplexType)
 {
+    std::cout<<"creating complex"<<std::endl;
     _complexSupplier = ComplexSupplierPtr(new ComplexSupplier(debugComplexType));
     Compute();
 }
@@ -32,11 +34,15 @@ FundGroup<ComplexSupplierType>::FundGroup(DebugComplexType debugComplexType)
 template <typename ComplexSupplierType>
 void FundGroup<ComplexSupplierType>::Compute()
 {
+    std::cout<<"getting cells data"<<std::endl;
     _complexSupplier->GetCells(_cellsByDim, _2Boundaries);
+    PrintDebug();
     if (_cellsByDim[0].size() > 1)
     {
+        std::cout<<"creating spanning tree"<<std::endl;
         CreateSpanningTree();
     }
+    std::cout<<"computing relators"<<std::endl;
     ComputeRelators();
     PrintDebug();
 }
@@ -81,6 +87,7 @@ void FundGroup<ComplexSupplierType>::CreateSpanningTree()
             }
             else
             {
+                std::cout<<"boundary.size =  "<<boundary.size()<<std::endl;
                 assert(false);
             }
         }

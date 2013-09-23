@@ -32,12 +32,15 @@ int main(int argc, char** argv)
 //    std::cout<<G8<<std::endl;
 //    FundGroup<CoreducedSComplexSupplier<SComplexHomology> > G9(DCT_Skeleton);
 //    std::cout<<G9<<std::endl;
-    FundGroup<AKQReducedSComplexSupplier<SComplexHomology> > G10(DCT_Sphere2);
-    std::cout<<G10<<std::endl;
-    FundGroup<AKQReducedSComplexSupplier<SComplexHomology> > G11(DCT_Sphere3);
-    std::cout<<G11<<std::endl;
-    FundGroup<AKQReducedSComplexSupplier<SComplexHomology> > G12(DCT_Skeleton);
-    std::cout<<G12<<std::endl;
+//    FundGroup<AKQReducedSComplexSupplier<SComplexHomology> > G10(DCT_Sphere2);
+//    std::cout<<G10<<std::endl;
+//    FundGroup<AKQReducedSComplexSupplier<SComplexHomology> > G11(DCT_Sphere3);
+//    std::cout<<G11<<std::endl;
+//    FundGroup<AKQReducedSComplexSupplier<SComplexHomology> > G12(DCT_Skeleton);
+//    std::cout<<G12<<std::endl;
+
+    FundGroup<AKQReducedSComplexSupplier<SComplexHomology> > G13("kappa.txt");
+    std::cout<<G13<<std::endl;
 
 //    if (argc > 1)
 //    {

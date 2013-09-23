@@ -60,7 +60,7 @@ template <typename Traits>
 std::vector<int>
 HomologyHelpers<Traits>::GetBettiNumbers(typename HomologyHelpers<Traits>::SComplexPtr complex)
 {
-    return GetBettiNumbers(CreateFilter(complex, true, true, false));
+    return GetBettiNumbers(CreateFilter(complex, false, false, false));
 }
 
 #endif	/* HOMOLOGYHELPERS_HPP */

@@ -51,5 +51,17 @@ public:
     typedef ChainT<ChainContainer<CellType, ScalarType> >   ChainType;
 };
 
+class SComplexHomology
+{
+public:
+
+    typedef SComplex<SComplexDefaultTraits>                 SComplexType;
+    typedef typename SComplexType::Cell                     CellType;
+    typedef double                                          ScalarType;
+    typedef SComplexFiltrT<SComplexType, ScalarType>        FilterType;
+    typedef ChainT<ChainContainer<CellType, ScalarType> >   ChainType;
+
+};
+
 #endif	/* HOMOLOGYTRAITS_HPP */
 

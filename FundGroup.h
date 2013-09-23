@@ -13,17 +13,14 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
-template <typename Traits>
+template <typename ComplexSupplierType>
 class FundGroup
 {
 public:
 
-    typedef typename Traits::SComplexType   SComplex;
-    typedef boost::shared_ptr<SComplex>     SComplexPtr;
-
     FundGroup();
     FundGroup(const char *filename);
-    FundGroup(SComplexPtr complex);
+    FundGroup(DebugComplexType debugComplexType);
 
     friend std::ostream& operator<<(std::ostream &str, FundGroup g)
     {
@@ -33,26 +30,23 @@ public:
 
 private:
 
-    typedef typename Traits::FilterType     Filter;
-    typedef boost::shared_ptr<Filter>       FilterPtr;
-    typedef typename Traits::CellType       Cell;
-    typedef std::set<Cell>                  Cells;
-    typedef std::vector<Cells>              CellsByDim;
-    typedef typename Traits::ChainType      Chain;
-    //typedef std::pair<Cell, Cell>           ReductionPair;
-    typedef std::pair<Cell, int>            RelatorComponent;
-    typedef std::vector<RelatorComponent>   Relator;
-    typedef std::vector<Relator>            Relators;
+    typedef ComplexSupplierType                         ComplexSupplier;
+    typedef boost::shared_ptr<ComplexSupplier>          ComplexSupplierPtr;
+    typedef typename ComplexSupplierType::Cell          Cell;
+    typedef typename ComplexSupplierType::Cells         Cells;
+    typedef typename ComplexSupplierType::CellsByDim    CellsByDim;
+    typedef typename ComplexSupplierType::Chain         Chain;
+    typedef std::pair<Cell, int>                        RelatorComponent;
+    typedef std::vector<RelatorComponent>               Relator;
+    typedef std::vector<Relator>                        Relators;
 
-    SComplexPtr             _complex;
-    FilterPtr               _filter;
+    ComplexSupplierPtr      _complexSupplier;
     CellsByDim              _cellsByDim;
-    std::map<Cell, Chain>   _reduced2Boundaries;
+    std::map<Cell, Chain>   _2Boundaries;
     Cells                   _spanningTreeEdges;
     Relators                _relators;
 
     void Compute();
-    void GetCellsData();
     void CreateSpanningTree();
     void ComputeRelators();
     std::string ToString();

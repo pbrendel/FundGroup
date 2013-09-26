@@ -13,10 +13,12 @@
 
 #include <capd/bitSet/BitmapT.hpp>
 #include <capd/bitSet/EuclBitSetT.hpp>
+#include <capd/repSet/ECellMDCodeT.h>
+#include <redHom/complex/scomplex/SComplexReader.hpp>
 
 template <int DIM>
 typename SComplexFactory<CubSComplex<DIM> >::SComplexPtr
-SComplexFactory<CubSComplex<DIM> >::Load(const char *filename)
+SComplexFactory<CubSComplex<DIM> >::Load(const char* filename)
 {
     throw std::logic_error("loading CubSComplex not implemented yet");
 }
@@ -138,7 +140,7 @@ void SComplexFactory<CubSComplex<DIM> >::FillCustom0(CubCellSetPtr cubSet)
 }
 
 typename SComplexFactory<SimplexSComplex>::SComplexPtr
-SComplexFactory<SimplexSComplex>::Load(const char *filename)
+SComplexFactory<SimplexSComplex>::Load(const char* filename)
 {
     std::ifstream input(filename);
     if (!input.is_open())
@@ -242,7 +244,58 @@ void SComplexFactory<SimplexSComplex>::FillCustom0(SComplexPtr complex)
 
 template <typename Traits>
 typename SComplexFactory<SComplex<Traits> >::SComplexPtr
-SComplexFactory<SComplex<Traits> >::Load(const char *filename)
+SComplexFactory<SComplex<Traits> >::Load(const char* filename)
+{
+    FileType fileType = DetermineFileType(filename);
+    switch (fileType)
+    {
+        case FT_KappaMap:
+            return LoadKappaMap(filename);
+        case FT_Cubes:
+            return LoadCubes(filename);
+        case FT_Simplices:
+        default:
+            return LoadSimplices(filename);
+    }
+}
+
+template <typename Traits>
+typename SComplexFactory<SComplex<Traits> >::FileType
+SComplexFactory<SComplex<Traits> >::DetermineFileType(const char* filename)
+{
+    // test!!!
+    return FT_KappaMap;
+
+    // simple but error-prone determining file type by its extension
+
+    size_t len = strlen(filename);
+
+    if (len < 5)
+    {
+        // cannot determine by its extension
+        return FT_Unknown;
+    }
+
+    if (   (tolower(filename[len - 3]) == 'h' || tolower(filename[len - 4]) == 'k')
+        && (tolower(filename[len - 2]) == 'a')
+        && (tolower(filename[len - 1]) == 'p') )
+    {
+        return FT_KappaMap;
+    }
+
+    if (   (tolower(filename[len - 3]) == 'c')
+        && (tolower(filename[len - 3]) == 'u')
+        && (tolower(filename[len - 1]) == 'b') )
+    {
+        return FT_Cubes;
+    }
+
+    return FT_Simplices;
+}
+
+template <typename Traits>
+typename SComplexFactory<SComplex<Traits> >::SComplexPtr
+SComplexFactory<SComplex<Traits> >::LoadKappaMap(const char* filename)
 {
     std::ifstream input(filename);
     if (!input.is_open())
@@ -252,9 +305,9 @@ SComplexFactory<SComplex<Traits> >::Load(const char *filename)
 
     Dims dims;
     KappaMap kappaMap;
-    int topDim = 0;
-    int totalCellsCount = 0;
-    int cellsCountDim0 = 0;
+    size_t topDim = 0;
+    size_t totalCellsCount = 0;
+    size_t kappaMapSize = 0;
 
     std::cout<<"reading SComplex"<<std::endl;
     input>>topDim;
@@ -264,19 +317,17 @@ SComplexFactory<SComplex<Traits> >::Load(const char *filename)
         int cellsCount = 0;
         input>>cellsCount;
         std::cout<<cellsCount<<" in dim "<<dim<<std::endl;
-        if (dim == 0)
-        {
-            cellsCountDim0 = cellsCount;
-        }
         totalCellsCount += cellsCount;
         for (int i = 0; i < cellsCount; i++)
         {
             dims.push_back(dim);
         }
+        // for every cell there is 2 boundary cells in each dimension
+        kappaMapSize += dim * cellsCount * 2;
     }
     std::cout<<"total cells count = "<<totalCellsCount<<std::endl;
 
-    for (int i = 0; i < totalCellsCount - cellsCountDim0; i++)
+    for (int i = 0; i < kappaMapSize; i++)
     {
         int cell;
         int boundary;
@@ -291,6 +342,30 @@ SComplexFactory<SComplex<Traits> >::Load(const char *filename)
     input.close();
     std::cout<<"data read successfully"<<std::endl;
     return SComplexPtr(new SComplexType(3, dims, kappaMap, 1));
+}
+
+template <typename Traits>
+typename SComplexFactory<SComplex<Traits> >::SComplexPtr
+SComplexFactory<SComplex<Traits> >::LoadCubes(const char* filename)
+{
+    throw std::logic_error("not implemented");
+//    std::ifstream input(filename);
+//    if (!input.is_open())
+//    {
+//        throw std::runtime_error(std::string("cannot open file ") + filename);
+//    }
+//
+//    SComplexReader<SComplexDefaultTraits> reader;
+//    SComplexPtr complex = reader(input, 3, 1);
+//    input.close();
+//    return complex;
+}
+
+template <typename Traits>
+typename SComplexFactory<SComplex<Traits> >::SComplexPtr
+SComplexFactory<SComplex<Traits> >::LoadSimplices(const char* filename)
+{
+    throw std::logic_error("not implemented");
 }
 
 template <typename Traits>

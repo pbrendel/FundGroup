@@ -10,7 +10,7 @@
 #include <set>
 #include <vector>
 #include <boost/shared_ptr.hpp>
-#include <redHom/algorithm/COAKQ.hpp>
+#include <redHom/algorithm/Coreduction.hpp>
 
 #include "DebugComplexType.h"
 
@@ -43,9 +43,9 @@ private:
     typedef typename SComplex::ColoredIterators::Iterators::DimCells DimCells;
     typedef typename SComplex::ColoredIterators::Iterators::BdCells  BdCells;
 
-    typedef COAKQStrategy<SComplex, SComplex>   Strategy;
-    typedef COAKQAlgorithm<Strategy>            Algorithm;
-    typedef boost::shared_ptr<Algorithm>        AlgorithmPtr;
+    typedef AKQReduceStrategy<SComplex>             Strategy;
+    typedef CoreductionAlgorithm<Strategy, Scalar>  Algorithm;
+    typedef boost::shared_ptr<Algorithm>            AlgorithmPtr;
 
     SComplexPtr     _complex;
     AlgorithmPtr    _algorithm;

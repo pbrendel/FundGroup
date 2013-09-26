@@ -36,7 +36,6 @@ void FundGroup<ComplexSupplierType>::Compute()
 {
     std::cout<<"getting cells data"<<std::endl;
     _complexSupplier->GetCells(_cellsByDim, _2Boundaries);
-    PrintDebug();
     if (_cellsByDim[0].size() > 1)
     {
         std::cout<<"creating spanning tree"<<std::endl;

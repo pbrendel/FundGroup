@@ -26,7 +26,7 @@ public:
     typedef CubSComplex<DIM>                SComplexType;
     typedef boost::shared_ptr<SComplexType> SComplexPtr;
 
-    static SComplexPtr Load(const char *filename);
+    static SComplexPtr Load(const char* filename);
     static SComplexPtr Create(DebugComplexType debugComplexType);
 
 private:
@@ -49,7 +49,7 @@ public:
     typedef SimplexSComplex                 SComplexType;
     typedef boost::shared_ptr<SComplexType> SComplexPtr;
 
-    static SComplexPtr Load(const char *filename);
+    static SComplexPtr Load(const char* filename);
     static SComplexPtr Create(DebugComplexType debugComplexType);
 
 private:
@@ -69,7 +69,7 @@ public:
     typedef SComplex<Traits>                SComplexType;
     typedef boost::shared_ptr<SComplexType> SComplexPtr;
 
-    static SComplexPtr Load(const char *filename);
+    static SComplexPtr Load(const char* filename);
     static SComplexPtr Create(DebugComplexType debugComplexType);
 
 private:
@@ -77,6 +77,20 @@ private:
     typedef typename SComplexType::Id       Id;
     typedef typename SComplexType::Dims     Dims;
     typedef typename SComplexType::KappaMap KappaMap;
+
+    enum FileType
+    {
+        FT_Unknown,
+        FT_Simplices,
+        FT_Cubes,
+        FT_KappaMap,
+    };
+
+    static FileType DetermineFileType(const char* filename);
+
+    static SComplexPtr LoadKappaMap(const char* filename);
+    static SComplexPtr LoadCubes(const char* filename);
+    static SComplexPtr LoadSimplices(const char* filename);
 
     static void FillSphere2(Dims& dims, KappaMap& kappaMap);
     static void FillSphere3(Dims& dims, KappaMap& kappaMap);

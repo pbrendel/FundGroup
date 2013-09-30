@@ -81,9 +81,9 @@ private:
     enum FileType
     {
         FT_Unknown,
-        FT_Simplices,
-        FT_Cubes,
         FT_KappaMap,
+        FT_Cubes,
+        FT_Simplices,
     };
 
     static FileType DetermineFileType(const char* filename);

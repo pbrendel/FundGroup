@@ -20,7 +20,43 @@ template <int DIM>
 typename SComplexFactory<CubSComplex<DIM> >::SComplexPtr
 SComplexFactory<CubSComplex<DIM> >::Load(const char* filename)
 {
-    throw std::logic_error("loading CubSComplex not implemented yet");
+    std::ifstream input(filename);
+    if (!input.is_open())
+    {
+        throw std::runtime_error(std::string("cannot open file ") + filename);
+    }
+
+    CubCellSetPtr cubSet = CubCellSetPtr(new CubCellSet(3, true));
+    std::string line;
+    int count = 0;
+    int point[DIM];
+    while (getline(input, line))
+    {
+        if (line.find_first_of("#", 0) != std::string::npos)
+        {
+            continue;
+        }
+        std::istringstream tokens(line);
+        int token;
+        int index = 0;
+        while(tokens >> token)
+        {
+            point[index++] = token;
+        }
+        if (index == DIM)
+        {
+            //std::cout<<"adding "<<count<<"th cube: ";
+            for (int i = 0; i < DIM; i++) std::cout<<point[i]<<" ";
+            std::cout<<std::endl;
+            cubSet().insert(point);
+            count++;
+        }
+    }
+    input.close();
+    std::cout<<"parsed "<<count<<" cubes"<<std::endl;
+
+    SComplexPtr complex = SComplexPtr(new SComplexType(cubSet));
+    return complex;
 }
 
 template <int DIM>
@@ -55,6 +91,7 @@ SComplexFactory<CubSComplex<DIM> >::Create(DebugComplexType debugComplexType)
 template <int DIM>
 void SComplexFactory<CubSComplex<DIM> >::FillSphere2(CubCellSetPtr cubSet)
 {
+    assert(DIM == 3);
     // filling with 2-sphere (a cube with tunnel)
     int point[3] = { 0, 0, 0 };
     for (int i = 0; i < 3; i++)
@@ -80,6 +117,7 @@ void SComplexFactory<CubSComplex<DIM> >::FillSphere2(CubCellSetPtr cubSet)
 template <int DIM>
 void SComplexFactory<CubSComplex<DIM> >::FillSphere3(CubCellSetPtr cubSet)
 {
+    assert(DIM == 3);
     // filling with 3-sphere (an "empty" cube)
     int point[3] = { 0, 0, 0 };
     for (int i = 0; i < 3; i++)
@@ -111,6 +149,7 @@ void SComplexFactory<CubSComplex<DIM> >::FillTorus(CubCellSetPtr cubSet)
 template <int DIM>
 void SComplexFactory<CubSComplex<DIM> >::FillSkeleton(CubCellSetPtr cubSet)
 {
+    assert(DIM == 3);
     // filling with "edges of cube" in R^3
     int point[3] = { 0, 0, 0 };
     for (int i = 0; i < 3; i++)
@@ -249,13 +288,13 @@ SComplexFactory<SComplex<Traits> >::Load(const char* filename)
     FileType fileType = DetermineFileType(filename);
     switch (fileType)
     {
-        case FT_KappaMap:
-            return LoadKappaMap(filename);
         case FT_Cubes:
             return LoadCubes(filename);
         case FT_Simplices:
-        default:
             return LoadSimplices(filename);
+        case FT_KappaMap:
+        default:
+            return LoadKappaMap(filename);
     }
 }
 
@@ -263,9 +302,6 @@ template <typename Traits>
 typename SComplexFactory<SComplex<Traits> >::FileType
 SComplexFactory<SComplex<Traits> >::DetermineFileType(const char* filename)
 {
-    // test!!!
-    return FT_KappaMap;
-
     // simple but error-prone determining file type by its extension
 
     size_t len = strlen(filename);
@@ -273,13 +309,7 @@ SComplexFactory<SComplex<Traits> >::DetermineFileType(const char* filename)
     if (len < 5)
     {
         // cannot determine by its extension
-        return FT_Unknown;
-    }
-
-    if (   (tolower(filename[len - 3]) == 'h' || tolower(filename[len - 4]) == 'k')
-        && (tolower(filename[len - 2]) == 'a')
-        && (tolower(filename[len - 1]) == 'p') )
-    {
+        // assuming default - Kappa map format
         return FT_KappaMap;
     }
 
@@ -290,7 +320,14 @@ SComplexFactory<SComplex<Traits> >::DetermineFileType(const char* filename)
         return FT_Cubes;
     }
 
-    return FT_Simplices;
+    if (   (tolower(filename[len - 3]) == 's')
+        && (tolower(filename[len - 2]) == 'i')
+        && (tolower(filename[len - 1]) == 'm') )
+    {
+        return FT_Simplices;
+    }
+
+    return FT_KappaMap;
 }
 
 template <typename Traits>
@@ -349,16 +386,6 @@ typename SComplexFactory<SComplex<Traits> >::SComplexPtr
 SComplexFactory<SComplex<Traits> >::LoadCubes(const char* filename)
 {
     throw std::logic_error("not implemented");
-//    std::ifstream input(filename);
-//    if (!input.is_open())
-//    {
-//        throw std::runtime_error(std::string("cannot open file ") + filename);
-//    }
-//
-//    SComplexReader<SComplexDefaultTraits> reader;
-//    SComplexPtr complex = reader(input, 3, 1);
-//    input.close();
-//    return complex;
 }
 
 template <typename Traits>

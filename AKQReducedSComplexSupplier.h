@@ -17,15 +17,26 @@
 template <typename Traits>
 class AKQReducedSComplexSupplier
 {
+    typedef typename Traits::InputSComplexType  InputSComplex;
+    typedef boost::shared_ptr<InputSComplex>    InputSComplexPtr;
+    typedef typename Traits::OutputSComplexType OutputSComplex;
+    typedef typename Traits::ScalarType         Scalar;
+
+    typedef typename OutputSComplex::Dim        Dim;
+    typedef typename OutputSComplex::ColoredIterators::Iterators::DimCells DimCells;
+    typedef typename OutputSComplex::ColoredIterators::Iterators::BdCells  BdCells;
+
+    typedef AKQReduceStrategy<InputSComplex>        Strategy;
+    typedef CoreductionAlgorithm<Strategy, Scalar>  Algorithm;
+    typedef boost::shared_ptr<Algorithm>            AlgorithmPtr;
+
 public:
 
-    typedef Traits                          HomologyTraits;
-    typedef typename Traits::SComplexType   SComplex;
-    typedef typename Traits::CellType       Cell;
-    typedef std::set<Cell>                  Cells;
-    typedef std::vector<Cells>              CellsByDim;
-    typedef typename Traits::ChainType      Chain;
-    typedef typename Traits::ScalarType     Scalar;
+    typedef Traits                              HomologyTraits;
+    typedef typename OutputSComplex::Cell       Cell;
+    typedef std::set<Cell>                      Cells;
+    typedef std::vector<Cells>                  CellsByDim;
+    typedef typename Traits::ChainType          Chain;
 
     AKQReducedSComplexSupplier(const char* filename);
     AKQReducedSComplexSupplier(DebugComplexType debugComplexType);
@@ -38,17 +49,8 @@ private:
 
     void CreateAlgorithm();
 
-    typedef boost::shared_ptr<SComplex>     SComplexPtr;
-    typedef typename SComplex::Dim          Dim;
-    typedef typename SComplex::ColoredIterators::Iterators::DimCells DimCells;
-    typedef typename SComplex::ColoredIterators::Iterators::BdCells  BdCells;
-
-    typedef AKQReduceStrategy<SComplex>             Strategy;
-    typedef CoreductionAlgorithm<Strategy, Scalar>  Algorithm;
-    typedef boost::shared_ptr<Algorithm>            AlgorithmPtr;
-
-    SComplexPtr     _complex;
-    AlgorithmPtr    _algorithm;
+InputSComplexPtr    _complex;
+    AlgorithmPtr        _algorithm;
 };
 
 #endif	/* AKQREDUCEDSCOMPLEXSUPPLIER_H */

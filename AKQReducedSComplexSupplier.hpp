@@ -16,14 +16,14 @@
 template <typename Traits>
 AKQReducedSComplexSupplier<Traits>::AKQReducedSComplexSupplier(const char* filename)
 {
-    _complex = SComplexFactory<SComplex>::Load(filename);
+    _complex = SComplexFactory<InputSComplex>::Load(filename);
     CreateAlgorithm();
 }
 
 template <typename Traits>
 AKQReducedSComplexSupplier<Traits>::AKQReducedSComplexSupplier(DebugComplexType debugComplexType)
 {
-    _complex = SComplexFactory<SComplex>::Create(debugComplexType);
+    _complex = SComplexFactory<InputSComplex>::Create(debugComplexType);
     CreateAlgorithm();
 }
 
@@ -31,14 +31,17 @@ template <typename Traits>
 void AKQReducedSComplexSupplier<Traits>::CreateAlgorithm()
 {
     _algorithm = AlgorithmPtr(new Algorithm(new Strategy(*_complex)));
+//    _algorithm->setStoreReducedCells(true);
     (*_algorithm)();
+//    std::cout<<"number of reduced pairs: "<<_algorithm->getReducedCells().size()<<std::endl;
+//    std::cout<<"number of extracted cells: "<<_algorithm->getExtractedCells().size()<<std::endl;
 }
 
 template <typename Traits>
 bool AKQReducedSComplexSupplier<Traits>::GetCells(CellsByDim& cellsByDim,
                                                   std::map<Cell,Chain>& _2Boundaries)
 {
-    SComplex* outputComplex = _algorithm->getStrategy()->getOutputComplex();
+    OutputSComplex* outputComplex = _algorithm->getStrategy()->getOutputComplex();
     int maxDim = static_cast<int>(outputComplex->getDim());
     cellsByDim.resize(maxDim + 1);
     for (int dim = 0; dim <= maxDim; dim++)
@@ -71,7 +74,7 @@ template <typename Traits>
 typename AKQReducedSComplexSupplier<Traits>::Chain
 AKQReducedSComplexSupplier<Traits>::GetBoundary(const Cell& cell)
 {
-    SComplex* outputComplex = _algorithm->getStrategy()->getOutputComplex();
+    OutputSComplex* outputComplex = _algorithm->getStrategy()->getOutputComplex();
     Chain boundary;
     BdCells bdCells = outputComplex->iterators(1).bdCells(cell);
     typename BdCells::iterator it = bdCells.begin();

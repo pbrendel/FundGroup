@@ -6,19 +6,6 @@
 #ifndef HOMOLOGYTRAITS_HPP
 #define	HOMOLOGYTRAITS_HPP
 
-//#include <capd/vectalg/Matrix.hpp>
-//#include <capd/vectalg/Vector.hpp>
-//
-//#include <capd/homAlgebra/FreeModule.h>
-//#include <capd/homAlgebra/FreeChainComplex.h>
-//#include <capd/homAlgebra/QuotientGradedModule.h>
-//#include <capd/redAlg/ReducibleFreeChainComplex.h>
-//
-// #include <redHom/algorithm/Algorithms.hpp>
-////#include <capd/matrixAlgorithms/intMatrixAlgorithms.hpp>
-//
-//#include <capd/homAlgebra/ChainT.h>
-
 // SComplexFiltrT needs this
 // remove after refactorization
 #include <boost/foreach.hpp>
@@ -29,7 +16,7 @@
 #include <redHom/complex/simplicial/SimplexSComplex.hpp>
 
 template <int DIM>
-class CubicalHomology
+class CubicalFilteredHomology
 {
 public:
 
@@ -40,7 +27,7 @@ public:
     typedef ChainT<ChainContainer<CellType, ScalarType> >   ChainType;
 };
 
-class SimplicialHomology
+class SimplicialFilteredHomology
 {
 public:
 
@@ -51,14 +38,37 @@ public:
     typedef ChainT<ChainContainer<CellType, ScalarType> >   ChainType;
 };
 
+template <int DIM>
+class CubicalHomology
+{
+public:
+
+    typedef CubSComplex<DIM>                                InputSComplexType;
+    typedef SComplex<SComplexDefaultTraits>                 OutputSComplexType;
+    typedef typename OutputSComplexType::Cell               CellType;
+    typedef double                                          ScalarType;
+    typedef ChainT<ChainContainer<CellType, ScalarType> >   ChainType;
+};
+
+class SimplicialHomology
+{
+public:
+
+    typedef SimplexSComplex                                 InputSComplexType;
+    typedef SComplex<SComplexDefaultTraits>                 OutputSComplexType;
+    typedef typename OutputSComplexType::Cell               CellType;
+    typedef double                                          ScalarType;
+    typedef ChainT<ChainContainer<CellType, ScalarType> >   ChainType;
+};
+
 class SComplexHomology
 {
 public:
 
-    typedef SComplex<SComplexDefaultTraits>                 SComplexType;
-    typedef typename SComplexType::Cell                     CellType;
+    typedef SComplex<SComplexDefaultTraits>                 InputSComplexType;
+    typedef SComplex<SComplexDefaultTraits>                 OutputSComplexType;
+    typedef typename OutputSComplexType::Cell               CellType;
     typedef double                                          ScalarType;
-    typedef SComplexFiltrT<SComplexType, ScalarType>        FilterType;
     typedef ChainT<ChainContainer<CellType, ScalarType> >   ChainType;
 
 };

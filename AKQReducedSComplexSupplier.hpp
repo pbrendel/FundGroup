@@ -31,10 +31,10 @@ template <typename Traits>
 void AKQReducedSComplexSupplier<Traits>::CreateAlgorithm()
 {
     _algorithm = AlgorithmPtr(new Algorithm(new Strategy(*_complex)));
-//    _algorithm->setStoreReducedCells(true);
+    //_algorithm->setStoreReducedCells(true);
     (*_algorithm)();
-//    std::cout<<"number of reduced pairs: "<<_algorithm->getReducedCells().size()<<std::endl;
-//    std::cout<<"number of extracted cells: "<<_algorithm->getExtractedCells().size()<<std::endl;
+    //std::cout<<"number of reduced pairs: "<<_algorithm->getReducedCells().size()<<std::endl;
+    //std::cout<<"number of extracted cells: "<<_algorithm->getExtractedCells().size()<<std::endl;
 }
 
 template <typename Traits>

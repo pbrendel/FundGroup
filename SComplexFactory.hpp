@@ -10,11 +10,11 @@
 
 #include <exception>
 #include <fstream>
+#include <limits>
 
 #include <capd/bitSet/BitmapT.hpp>
 #include <capd/bitSet/EuclBitSetT.hpp>
 #include <capd/repSet/ECellMDCodeT.h>
-#include <redHom/complex/scomplex/SComplexReader.hpp>
 
 template <int DIM>
 typename SComplexFactory<CubSComplex<DIM> >::SComplexPtr
@@ -26,10 +26,11 @@ SComplexFactory<CubSComplex<DIM> >::Load(const char* filename)
         throw std::runtime_error(std::string("cannot open file ") + filename);
     }
 
-    CubCellSetPtr cubSet = CubCellSetPtr(new CubCellSet(3, true));
+    // parsing cubes and computing bitmap size in each dimension
+    std::vector<std::vector<int> > cubes;
+    std::vector<int> cMin(DIM, std::numeric_limits<int>::max());
+    std::vector<int> cMax(DIM, std::numeric_limits<int>::min());
     std::string line;
-    int count = 0;
-    int point[DIM];
     while (getline(input, line))
     {
         if (line.find_first_of("#", 0) != std::string::npos)
@@ -37,24 +38,52 @@ SComplexFactory<CubSComplex<DIM> >::Load(const char* filename)
             continue;
         }
         std::istringstream tokens(line);
-        int token;
-        int index = 0;
-        while(tokens >> token)
+        std::vector<int> cube;
+        int coord;
+        while(tokens >> coord)
         {
-            point[index++] = token;
+            int index = std::min(static_cast<int>(cube.size()), DIM - 1);
+            if (coord < cMin[index])
+            {
+                cMin[index] = coord;
+            }
+            if (coord > cMax[index])
+            {
+                cMax[index] = coord;
+            }
+            cube.push_back(coord);
         }
-        if (index == DIM)
+        if (cube.size() == DIM)
         {
-            //std::cout<<"adding "<<count<<"th cube: ";
-            for (int i = 0; i < DIM; i++) std::cout<<point[i]<<" ";
-            std::cout<<std::endl;
-            cubSet().insert(point);
-            count++;
+            cubes.push_back(cube);
         }
     }
     input.close();
-    std::cout<<"parsed "<<count<<" cubes"<<std::endl;
+    std::cout<<"parsed "<<cubes.size()<<" cubes"<<std::endl;
 
+    // creating CubSComplex with proper sizes
+    std::vector<int> size(DIM);
+    for (int i = 0; i < DIM; i++)
+    {
+        // recalculating into RedHom internal format
+        size[i] = 2 * (cMax[i] - cMin[i] + 1) + 1;
+    }
+    CubCellSetPtr cubSet = CubCellSetPtr(new CubCellSet(&size[0], true));
+
+    // renormalizing and adding cubes
+    size_t count = cubes.size();
+    for (size_t i = 0; i < count; i++)
+    {
+        std::vector<int> c = cubes[i];
+        for (size_t j = 0; j < DIM; j++)
+        {
+            // recalculating into RedHom internal format
+            c[j] = 2 * c[j] - cMin[j] + 1;
+        }
+        cubSet().insert(&c[0]);
+    }
+
+    cubSet().fillWithSubEmbDimCells();
     SComplexPtr complex = SComplexPtr(new SComplexType(cubSet));
     return complex;
 }

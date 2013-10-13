@@ -6,8 +6,8 @@
 #ifndef FUNDGROUP_H
 #define	FUNDGROUP_H
 
-#include <iostream>
 #include <map>
+#include <ostream>
 #include <set>
 #include <string>
 #include <vector>

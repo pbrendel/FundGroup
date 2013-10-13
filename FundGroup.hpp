@@ -9,16 +9,16 @@
 #include "FundGroup.h"
 
 #include <cassert>
-#include <iostream>
 #include <sstream>
 #include <vector>
 
 #include "SComplexFactory.hpp"
 
+#include "Logger.h"
+
 template <typename ComplexSupplierType>
 FundGroup<ComplexSupplierType>::FundGroup(const char *filename)
 {
-    std::cout<<"creating complex"<<std::endl;
     _complexSupplier = ComplexSupplierPtr(new ComplexSupplier(filename));
     Compute();
 }
@@ -26,7 +26,6 @@ FundGroup<ComplexSupplierType>::FundGroup(const char *filename)
 template <typename ComplexSupplierType>
 FundGroup<ComplexSupplierType>::FundGroup(DebugComplexType debugComplexType)
 {
-    std::cout<<"creating complex"<<std::endl;
     _complexSupplier = ComplexSupplierPtr(new ComplexSupplier(debugComplexType));
     Compute();
 }
@@ -34,15 +33,18 @@ FundGroup<ComplexSupplierType>::FundGroup(DebugComplexType debugComplexType)
 template <typename ComplexSupplierType>
 void FundGroup<ComplexSupplierType>::Compute()
 {
-    std::cout<<"getting cells data"<<std::endl;
+    Logger::Begin(Logger::Details, "getting cells data");
     _complexSupplier->GetCells(_cellsByDim, _2Boundaries);
+    Logger::End();
     if (_cellsByDim[0].size() > 1)
     {
-        std::cout<<"creating spanning tree"<<std::endl;
+        Logger::Begin(Logger::Details, "creating spanning tree");
         CreateSpanningTree();
+        Logger::End();
     }
-    std::cout<<"computing relators"<<std::endl;
+    Logger::Begin(Logger::Details, "computing relators");
     ComputeRelators();
+    Logger::End();
     PrintDebug();
 }
 
@@ -86,7 +88,7 @@ void FundGroup<ComplexSupplierType>::CreateSpanningTree()
             }
             else
             {
-                std::cout<<"boundary.size =  "<<boundary.size()<<std::endl;
+                Logger::Log(Logger::Assert)<<"boundary.size =  "<<boundary.size()<<std::endl;
                 assert(false);
             }
         }
@@ -196,25 +198,25 @@ void FundGroup<ComplexSupplierType>::PrintDebug()
 {
     _complexSupplier->PrintDebug();
 
-    std::cout<<"cells:"<<std::endl;
+    Logger::Log(Logger::Debug)<<"cells:"<<std::endl;
     for (int i = 0; i < _cellsByDim.size(); i++)
     {
-        std::cout<<"dim: "<<i<<std::endl;
+        Logger::Log(Logger::Debug)<<"dim: "<<i<<std::endl;
         for (typename Cells::iterator it = _cellsByDim[i].begin(); it != _cellsByDim[i].end(); ++it)
         {
-            std::cout<<*it<<std::endl;
+            Logger::Log(Logger::Debug)<<*it<<std::endl;
         }
     }
 
-    std::cout<<"2 boundaries:"<<std::endl;
+    Logger::Log(Logger::Debug)<<"2 boundaries:"<<std::endl;
     for (typename std::map<Cell, Chain>::iterator it = _2Boundaries.begin();
                                                   it != _2Boundaries.end();
                                                   ++it)
     {
-        std::cout<<"cell: "<<it->first<<std::endl;
+        Logger::Log(Logger::Debug)<<"cell: "<<it->first<<std::endl;
         for (typename Chain::iterator jt = it->second.begin(); jt != it->second.end(); ++jt)
         {
-            std::cout<<jt->first<<std::endl;
+            Logger::Log(Logger::Debug)<<jt->first<<std::endl;
         }
     }
 }

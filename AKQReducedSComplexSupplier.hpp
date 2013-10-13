@@ -8,10 +8,10 @@
 
 #include "AKQReducedSComplexSupplier.h"
 
-#include <iostream>
-
 #include "HomologyHelpers.hpp"
 #include "SComplexFactory.h"
+
+#include "Logger.h"
 
 template <typename Traits>
 AKQReducedSComplexSupplier<Traits>::AKQReducedSComplexSupplier(const char* filename)
@@ -30,11 +30,16 @@ AKQReducedSComplexSupplier<Traits>::AKQReducedSComplexSupplier(DebugComplexType 
 template <typename Traits>
 void AKQReducedSComplexSupplier<Traits>::CreateAlgorithm()
 {
+    Logger::Begin(Logger::Details, "performing coreductions");
     _algorithm = AlgorithmPtr(new Algorithm(new Strategy(*_complex)));
-    //_algorithm->setStoreReducedCells(true);
+    _algorithm->setStoreReducedCells(Logger::PrintCoreducedCellsCount());
     (*_algorithm)();
-    //std::cout<<"number of reduced pairs: "<<_algorithm->getReducedCells().size()<<std::endl;
-    //std::cout<<"number of extracted cells: "<<_algorithm->getExtractedCells().size()<<std::endl;
+    Logger::End("coreductions finished");
+    if (Logger::PrintCoreducedCellsCount())
+    {
+        Logger::Log(Logger::Details)<<"number of reduced pairs: "<<_algorithm->getReducedCells().size()<<std::endl;
+        Logger::Log(Logger::Details)<<"number of extracted cells: "<<_algorithm->getExtractedCells().size()<<std::endl;
+    }
 }
 
 template <typename Traits>
@@ -89,7 +94,7 @@ AKQReducedSComplexSupplier<Traits>::GetBoundary(const Cell& cell)
 template <typename Traits>
 void AKQReducedSComplexSupplier<Traits>::PrintDebug()
 {
-    std::cout<<"homology signature:"<<std::endl<<_algorithm->getExtractedSignature()<<std::endl;
+    Logger::Log(Logger::Debug)<<"homology signature:"<<std::endl<<_algorithm->getExtractedSignature()<<std::endl;
 }
 
 #endif	/* AKQREDUCEDSCOMPLEXSUPPLIER_HPP */

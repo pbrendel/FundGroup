@@ -8,10 +8,10 @@
 
 #include "CoreducedSComplexSupplier.h"
 
-#include <iostream>
-
 #include "HomologyHelpers.hpp"
 #include "SComplexFactory.h"
+
+#include "Logger.h"
 
 template <typename Traits>
 CoreducedSComplexSupplier<Traits>::CoreducedSComplexSupplier(const char* filename)
@@ -85,21 +85,21 @@ void CoreducedSComplexSupplier<Traits>::PrintDebug()
     typedef HomologyHelpers<Traits> Homology;
 
     std::vector<int> betti = Homology::GetBettiNumbers(_complex);
-    std::cout<<"betti numbers of given complex:"<<std::endl;
+    Logger::Log(Logger::Debug)<<"betti numbers of given complex:"<<std::endl;
     for (int i = 0; i < betti.size(); i++)
     {
-        std::cout<<"B["<<i<<"] = "<<betti[i]<<std::endl;
+        Logger::Log(Logger::Debug)<<"B["<<i<<"] = "<<betti[i]<<std::endl;
     }
 
-    std::cout<<"homology chains:"<<std::endl;
+    Logger::Log(Logger::Debug)<<"homology chains:"<<std::endl;
     for (int i = 0; i <= _filter->topDim(); i++)
     {
-        std::cout<<"dim "<<i<<":"<<std::endl;
+        Logger::Log(Logger::Debug)<<"dim "<<i<<":"<<std::endl;
         for ( int j = 0; j < _filter->baseHomologyChains()[i].size(); j++)
         {
-            std::cout<<_filter->baseHomologyChains()[i][j]<<", "<<std::endl;
+            Logger::Log(Logger::Debug)<<_filter->baseHomologyChains()[i][j]<<", "<<std::endl;
         }
-        std::cout<<std::endl;
+        Logger::Log(Logger::Debug)<<std::endl;
     }
 }
 

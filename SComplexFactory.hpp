@@ -10,11 +10,12 @@
 
 #include <exception>
 #include <fstream>
-#include <limits>
 
 #include <capd/bitSet/BitmapT.hpp>
 #include <capd/bitSet/EuclBitSetT.hpp>
 #include <capd/repSet/ECellMDCodeT.h>
+
+#include "Logger.h"
 
 template <int DIM>
 typename SComplexFactory<CubSComplex<DIM> >::SComplexPtr
@@ -26,10 +27,9 @@ SComplexFactory<CubSComplex<DIM> >::Load(const char* filename)
         throw std::runtime_error(std::string("cannot open file ") + filename);
     }
 
-    // parsing cubes and computing bitmap size in each dimension
-    std::vector<std::vector<int> > cubes;
-    std::vector<int> cMin(DIM, std::numeric_limits<int>::max());
-    std::vector<int> cMax(DIM, std::numeric_limits<int>::min());
+    Logger::Begin(Logger::Details, "parsing data");
+    Cubes cubes;
+    BitmapSizes sizes(DIM);
     std::string line;
     while (getline(input, line))
     {
@@ -38,19 +38,12 @@ SComplexFactory<CubSComplex<DIM> >::Load(const char* filename)
             continue;
         }
         std::istringstream tokens(line);
-        std::vector<int> cube;
-        int coord;
+        Cube cube;
+        Coord coord;
         while(tokens >> coord)
         {
             int index = std::min(static_cast<int>(cube.size()), DIM - 1);
-            if (coord < cMin[index])
-            {
-                cMin[index] = coord;
-            }
-            if (coord > cMax[index])
-            {
-                cMax[index] = coord;
-            }
+            sizes[index].Update(coord);
             cube.push_back(coord);
         }
         if (cube.size() == DIM)
@@ -59,150 +52,251 @@ SComplexFactory<CubSComplex<DIM> >::Load(const char* filename)
         }
     }
     input.close();
-    std::cout<<"parsed "<<cubes.size()<<" cubes"<<std::endl;
+    Logger::End();
+    Logger::Log(Logger::Details)<<"parsed "<<cubes.size()<<" cubes"<<std::endl;
 
-    // creating CubSComplex with proper sizes
-    std::vector<int> size(DIM);
-    for (int i = 0; i < DIM; i++)
-    {
-        // recalculating into RedHom internal format
-        size[i] = 2 * (cMax[i] - cMin[i] + 1) + 1;
-    }
-    CubCellSetPtr cubSet = CubCellSetPtr(new CubCellSet(&size[0], true));
-
-    // renormalizing and adding cubes
-    size_t count = cubes.size();
-    for (size_t i = 0; i < count; i++)
-    {
-        std::vector<int> c = cubes[i];
-        for (size_t j = 0; j < DIM; j++)
-        {
-            // recalculating into RedHom internal format
-            c[j] = 2 * c[j] - cMin[j] + 1;
-        }
-        cubSet().insert(&c[0]);
-    }
-
-    cubSet().fillWithSubEmbDimCells();
-    SComplexPtr complex = SComplexPtr(new SComplexType(cubSet));
-    return complex;
+    return Create(cubes, sizes);
 }
 
 template <int DIM>
 typename SComplexFactory<CubSComplex<DIM> >::SComplexPtr
 SComplexFactory<CubSComplex<DIM> >::Create(DebugComplexType debugComplexType)
 {
-    CubCellSetPtr cubSet = CubCellSetPtr(new CubCellSet(3, true));
+    Cubes cubes;
+    BitmapSizes sizes;
     switch (debugComplexType)
     {
         case DCT_Sphere2:
-            FillSphere2(cubSet);
+            FillSphere2(cubes, sizes);
             break;
         case DCT_Sphere3:
-            FillSphere3(cubSet);
+            FillSphere3(cubes, sizes);
             break;
         case DCT_Torus:
-            FillTorus(cubSet);
+            FillTorus(cubes, sizes);
             break;
         case DCT_Skeleton:
-            FillSkeleton(cubSet);
+            FillSkeleton(cubes, sizes);
             break;
         case DCT_Custom0:
-            FillCustom0(cubSet);
+            FillCustom0(cubes, sizes);
             break;
         default:
             throw std::logic_error("not implemented");
     }
-    SComplexPtr complex = SComplexPtr(new SComplexType(cubSet));
+    return Create(cubes, sizes);
+}
+
+template <int DIM>
+typename SComplexFactory<CubSComplex<DIM> >::SComplexPtr
+SComplexFactory<CubSComplex<DIM> >::Create(Cubes& cubes, BitmapSizes& sizes)
+{
+    //return CreateWithCubCellSet(cubes, sizes, true);
+    return CreateWithCubSet(cubes, sizes, true);
+}
+
+template <int DIM>
+typename SComplexFactory<CubSComplex<DIM> >::SComplexPtr
+SComplexFactory<CubSComplex<DIM> >::CreateWithCubCellSet(Cubes& cubes, BitmapSizes& sizes, bool shave)
+{
+    // recalculating into RedHom CubCellSet internal format
+    Logger::Begin(Logger::Details, "Creating CubCellSet");
+    std::vector<int> cubCellSetSizes(DIM);
+    for (int i = 0; i < DIM; i++)
+    {
+        Logger::Log(Logger::Debug)<<sizes[i].Size()<<std::endl;
+        cubCellSetSizes[i] = 2 * sizes[i].Size() + 1;
+    }
+    CubCellSetPtr cubCellSet = CubCellSetPtr(new CubCellSet(&cubCellSetSizes[0], true));
+
+    // renormalizing and adding cubes
+    int cube[DIM];
+    size_t count = cubes.size();
+    for (size_t i = 0; i < count; i++)
+    {
+        Cube c = cubes[i];
+        for (size_t j = 0; j < DIM; j++)
+        {
+            // recalculating into RedHom CubCellSet internal format
+            cube[j] = 2 * c[j] - sizes[j]._min + 1;
+        }
+        cubCellSet().insert(&cube[0]);
+    }
+    Logger::End();
+
+    Logger::Begin(Logger::Details, "creating lower dimensional cubes");
+    cubCellSet().fillWithSubEmbDimCells();
+    Logger::End();
+
+    if (shave)
+    {
+        Logger::Begin(Logger::Details, "shaving");
+        count = static_cast<size_t>(cubCellSet().shave());
+        if (Logger::PrintShavedCellsCount())
+        {
+            Logger::Log(Logger::Details)<<"shaved "<<count<<" cubes"<<std::endl;
+        }
+        Logger::End();
+    }
+
+    Logger::Begin(Logger::Details, "creating SComplex");
+    SComplexPtr complex = SComplexPtr(new SComplexType(cubCellSet));
+    Logger::End();
+
     return complex;
 }
 
 template <int DIM>
-void SComplexFactory<CubSComplex<DIM> >::FillSphere2(CubCellSetPtr cubSet)
+typename SComplexFactory<CubSComplex<DIM> >::SComplexPtr
+SComplexFactory<CubSComplex<DIM> >::CreateWithCubSet(Cubes& cubes, BitmapSizes& sizes, bool shave)
+{
+   // recalculating into RedHom CubSet internal format
+    Logger::Begin(Logger::Details, "Creating CubSet");
+    std::vector<int> cubSetSizes(DIM);
+    for (int i = 0; i < DIM; i++)
+    {
+        Logger::Log(Logger::Debug)<<sizes[i].Size()<<std::endl;
+        cubSetSizes[i] = sizes[i].Size();
+    }
+
+    CubSetPtr cubSet = CubSetPtr(new CubSet(&cubSetSizes[0]));
+
+    // renormalizing and adding cubes
+    int cube[DIM];
+    size_t count = cubes.size();
+    for (size_t i = 0; i < count; i++)
+    {
+        Cube c = cubes[i];
+        for (size_t j = 0; j < DIM; j++)
+        {
+            // recalculating into RedHom CubSet internal format
+            cube[j] = c[j] - sizes[j]._min;
+        }
+        cubSet().insert(&cube[0]);
+    }
+    cubSet().addEmptyCollar();
+    Logger::End();
+
+    if (shave)
+    {
+        Logger::Begin(Logger::Details, "shaving");
+    //    cubSet().shaveBI();
+        if (Logger::PrintShavedCellsCount())
+        {
+            count = count - static_cast<size_t>(cubSet().cardinality());
+            Logger::Log(Logger::Details)<<"shaved "<<count<<" cubes"<<std::endl;
+        }
+        Logger::End();
+    }
+
+    Logger::Begin(Logger::Details, "creating CubCellSet");
+    CubCellSetPtr cubCellSet = CubCellSetPtr(new CubCellSet(cubSet()));
+    Logger::End();
+
+    Logger::Begin(Logger::Details, "creating SComplex");
+    SComplexPtr complex = SComplexPtr(new SComplexType(cubCellSet));
+    Logger::End();
+
+    return complex;
+
+
+}
+
+template <int DIM>
+void SComplexFactory<CubSComplex<DIM> >::FillSphere2(Cubes& cubes, BitmapSizes& sizes)
 {
     assert(DIM == 3);
+    sizes.push_back(BitmapSize(3));
+    sizes.push_back(BitmapSize(3));
+    sizes.push_back(BitmapSize(3));
     // filling with 2-sphere (a cube with tunnel)
-    int point[3] = { 0, 0, 0 };
-    for (int i = 0; i < 3; i++)
+    Cube cube(3);
+    for (Coord i = 0; i < 3; i++)
     {
-        point[0] = i;
-        for (int j = 0; j < 3; j++)
+        cube[0] = i;
+        for (Coord j = 0; j < 3; j++)
         {
             // leaving empty tunnel
             if (i == 1 && j == 1)
             {
                 continue;
             }
-            point[1] = j;
-            for (int k = 0; k < 3; k++)
+            cube[1] = j;
+            for (Coord k = 0; k < 3; k++)
             {
-                point[2] = k;
-                cubSet().insert(point);
+                cube[2] = k;
+                cubes.push_back(cube);
             }
         }
     }
 }
 
 template <int DIM>
-void SComplexFactory<CubSComplex<DIM> >::FillSphere3(CubCellSetPtr cubSet)
+void SComplexFactory<CubSComplex<DIM> >::FillSphere3(Cubes& cubes, BitmapSizes& sizes)
 {
     assert(DIM == 3);
+    sizes.push_back(BitmapSize(3));
+    sizes.push_back(BitmapSize(3));
+    sizes.push_back(BitmapSize(3));
     // filling with 3-sphere (an "empty" cube)
-    int point[3] = { 0, 0, 0 };
-    for (int i = 0; i < 3; i++)
+    Cube cube(DIM);
+    for (Coord i = 0; i < 3; i++)
     {
-        point[0] = i;
-        for (int j = 0; j < 3; j++)
+        cube[0] = i;
+        for (Coord j = 0; j < 3; j++)
         {
-            point[1] = j;
-            for (int k = 0; k < 3; k++)
+            cube[1] = j;
+            for (Coord k = 0; k < 3; k++)
             {
                 // leaving center empty
                 if (i == 1 && j == 1 && k == 1)
                 {
                     continue;
                 }
-                point[2] = k;
-                cubSet().insert(point);
+                cube[2] = k;
+                cubes.push_back(cube);
             }
         }
     }
 }
 
 template <int DIM>
-void SComplexFactory<CubSComplex<DIM> >::FillTorus(CubCellSetPtr cubSet)
+void SComplexFactory<CubSComplex<DIM> >::FillTorus(Cubes& cubes, BitmapSizes& sizes)
 {
     throw std::logic_error("not implemented");
 }
 
 template <int DIM>
-void SComplexFactory<CubSComplex<DIM> >::FillSkeleton(CubCellSetPtr cubSet)
+void SComplexFactory<CubSComplex<DIM> >::FillSkeleton(Cubes& cubes, BitmapSizes& sizes)
 {
     assert(DIM == 3);
+    sizes.push_back(BitmapSize(3));
+    sizes.push_back(BitmapSize(3));
+    sizes.push_back(BitmapSize(3));
     // filling with "edges of cube" in R^3
-    int point[3] = { 0, 0, 0 };
-    for (int i = 0; i < 3; i++)
+    Cube cube(DIM);
+    for (Coord i = 0; i < 3; i++)
     {
-        point[0] = i;
-        for (int j = 0; j < 3; j++)
+        cube[0] = i;
+        for (Coord j = 0; j < 3; j++)
         {
-            point[1] = j;
-            for (int k = 0; k < 3; k++)
+            cube[1] = j;
+            for (Coord k = 0; k < 3; k++)
             {
                 // leaving tunnels in each dimension empty
                 if ((i == 1 && j == 1) || (i == 1 && k == 1) || (j == 1 && k == 1))
                 {
                     continue;
                 }
-                point[2] = k;
-                cubSet().insert(point);
+                cube[2] = k;
+                cubes.push_back(cube);
             }
         }
     }
 }
 
 template <int DIM>
-void SComplexFactory<CubSComplex<DIM> >::FillCustom0(CubCellSetPtr cubSet)
+void SComplexFactory<CubSComplex<DIM> >::FillCustom0(Cubes& cubes, BitmapSizes& sizes)
 {
     throw std::logic_error("not implemented");
 }
@@ -375,14 +469,14 @@ SComplexFactory<SComplex<Traits> >::LoadKappaMap(const char* filename)
     size_t totalCellsCount = 0;
     size_t kappaMapSize = 0;
 
-    std::cout<<"reading SComplex"<<std::endl;
+    Logger::Begin(Logger::Details, "reading SComplex as kappa map");
     input>>topDim;
-    std::cout<<"top dim = "<<topDim<<std::endl;
+    Logger::Log(Logger::Details)<<"top dim: "<<topDim<<std::endl;
     for (int dim = 0; dim <= topDim; dim++)
     {
         int cellsCount = 0;
         input>>cellsCount;
-        std::cout<<cellsCount<<" in dim "<<dim<<std::endl;
+        Logger::Log(Logger::Details)<<cellsCount<<" cells in dim "<<dim<<std::endl;
         totalCellsCount += cellsCount;
         for (int i = 0; i < cellsCount; i++)
         {
@@ -391,7 +485,7 @@ SComplexFactory<SComplex<Traits> >::LoadKappaMap(const char* filename)
         // for every cell there is 2 boundary cells in each dimension
         kappaMapSize += dim * cellsCount * 2;
     }
-    std::cout<<"total cells count = "<<totalCellsCount<<std::endl;
+    Logger::Log(Logger::Details)<<"total cells count = "<<totalCellsCount<<std::endl;
 
     for (int i = 0; i < kappaMapSize; i++)
     {
@@ -406,7 +500,7 @@ SComplexFactory<SComplex<Traits> >::LoadKappaMap(const char* filename)
                                                      index));
     }
     input.close();
-    std::cout<<"data read successfully"<<std::endl;
+    Logger::End("data read successfully");
     return SComplexPtr(new SComplexType(3, dims, kappaMap, 1));
 }
 

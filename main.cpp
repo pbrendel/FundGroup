@@ -3,26 +3,23 @@
  * Author: Piotr Brendel
  */
 
-#include <ctime>
-#include <iostream>
-
 #include "AKQReducedSComplexSupplier.hpp"
 #include "FundGroup.hpp"
 #include "HomologyTraits.hpp"
 
+#include "Logger.h"
+
 int main(int argc, char** argv)
 {
-    std::cout<<"computing for cubes"<<std::endl;
-    time_t now = time(0);
-    FundGroup<AKQReducedSComplexSupplier<CubicalHomology<3> > > G("cubes_m.txt");
-    std::cout<<G<<std::endl;
-    std::cout<<"finished in "<<(time(0) - now)<<" seconds"<<std::endl;
+    Logger::Begin(Logger::Output, "computing for cubes");
+    FundGroup<AKQReducedSComplexSupplier<CubicalHomology<3> > > G("cubes_c.txt");
+    Logger::Log(Logger::Output)<<G<<std::endl;
+    Logger::End();
 
-    std::cout<<"computing for general kappa map"<<std::endl;
-    now = time(0);
-    FundGroup<AKQReducedSComplexSupplier<SComplexHomology> > H("kappa.txt");
-    std::cout<<H<<std::endl;
-    std::cout<<"finished in "<<(time(0) - now)<<" seconds"<<std::endl;
+//    Logger::Begin(Logger::Output, "computing for general kappa map");
+//    FundGroup<AKQReducedSComplexSupplier<SComplexHomology> > H("kappa.txt");
+//    Logger::Log(Logger::Output)<<H<<std::endl;
+//    Logger::End();
 
     return 0;
 }

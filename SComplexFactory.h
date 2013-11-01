@@ -23,20 +23,16 @@ class SComplexFactory<CubSComplex<DIM> >
 {
 public:
 
-    typedef CubSComplex<DIM>                SComplexType;
-    typedef boost::shared_ptr<SComplexType> SComplexPtr;
-
-    static SComplexPtr Load(const char* filename);
-    static SComplexPtr Create(DebugComplexType type);
-
-private:
-
+    typedef CubSComplex<DIM>                        SComplexType;
+    typedef boost::shared_ptr<SComplexType>         SComplexPtr;
     typedef typename CubSComplex<DIM>::BCubCellSet  CubCellSet;
     typedef CRef<CubCellSet>                        CubCellSetPtr;
     typedef typename CubCellSet::EuclSet            EuclSet;
     typedef CubSetT<EuclSet>                        CubSet;
     typedef CRef<CubSet>                            CubSetPtr;
 
+    static SComplexPtr Load(const char* filename);
+    static SComplexPtr Create(DebugComplexType type);
     static SComplexPtr Create(CubCellSetPtr);
     static SComplexPtr Create(CubSetPtr);
 };
@@ -48,17 +44,13 @@ public:
 
     typedef SimplexSComplex                 SComplexType;
     typedef boost::shared_ptr<SComplexType> SComplexPtr;
+    typedef int                             Id;
+    typedef std::set<Id>                    Simplex;
+    typedef std::vector<Simplex>            Simplices;
 
     static SComplexPtr Load(const char* filename);
-    static SComplexPtr Create(DebugComplexType debugComplexType);
-
-private:
-
-    static void FillSphere2(SComplexPtr complex);
-    static void FillSphere3(SComplexPtr complex);
-    static void FillTorus(SComplexPtr complex);
-    static void FillSkeleton(SComplexPtr complex);
-    static void FillCustom0(SComplexPtr complex);
+    static SComplexPtr Create(DebugComplexType type);
+    static SComplexPtr Create(Simplices& simplices);
 };
 
 template <typename Traits>
@@ -68,15 +60,16 @@ public:
 
     typedef SComplex<Traits>                SComplexType;
     typedef boost::shared_ptr<SComplexType> SComplexPtr;
-
-    static SComplexPtr Load(const char* filename);
-    static SComplexPtr Create(DebugComplexType debugComplexType);
-
-private:
-
     typedef typename SComplexType::Id       Id;
+    typedef typename SComplexType::Dim      Dim;
     typedef typename SComplexType::Dims     Dims;
     typedef typename SComplexType::KappaMap KappaMap;
+
+    static SComplexPtr Load(const char* filename);
+    static SComplexPtr Create(DebugComplexType type);
+    static SComplexPtr Create(Dims& dims, KappaMap& kappaMap);
+
+private:
 
     enum FileType
     {
@@ -87,16 +80,6 @@ private:
     };
 
     static FileType DetermineFileType(const char* filename);
-
-    static SComplexPtr LoadKappaMap(const char* filename);
-    static SComplexPtr LoadCubes(const char* filename);
-    static SComplexPtr LoadSimplices(const char* filename);
-
-    static void FillSphere2(Dims& dims, KappaMap& kappaMap);
-    static void FillSphere3(Dims& dims, KappaMap& kappaMap);
-    static void FillTorus(Dims& dims, KappaMap& kappaMap);
-    static void FillSkeleton(Dims& dims, KappaMap& kappaMap);
-    static void FillCustom0(Dims& dims, KappaMap& kappaMap);
 };
 
 #include "SComplexFactory.hpp"

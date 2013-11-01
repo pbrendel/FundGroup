@@ -16,10 +16,17 @@ int main(int argc, char** argv)
     Logger::Log(Logger::Output)<<G<<std::endl;
     Logger::End();
 
-//    Logger::Begin(Logger::Output, "computing for general kappa map");
-//    FundGroup<AKQReducedSComplexSupplier<SComplexHomology> > H("kappa.txt");
-//    Logger::Log(Logger::Output)<<H<<std::endl;
-//    Logger::End();
+    //Logger::Begin(Logger::Output, "computing for general kappa map");
+    //FundGroup<AKQReducedSComplexSupplier<SComplexHomology> > H("kappa.txt");
+    //Logger::Log(Logger::Output)<<H<<std::endl;
+    //Logger::End();
+
+    //FundGroup<AKQReducedSComplexSupplier<SComplexHomology> > g1(DCT_Sphere2);
+    //std::cout<<g1<<std::endl;
+    //FundGroup<AKQReducedSComplexSupplier<CubicalHomology<3> > > g2(DCT_Sphere2);
+    //std::cout<<g2<<std::endl;
+    //FundGroup<AKQReducedSComplexSupplier<SimplicialHomology> > g3(DCT_Sphere2);
+    //std::cout<<g3<<std::endl;
 
     return 0;
 }

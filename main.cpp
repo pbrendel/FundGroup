@@ -3,9 +3,9 @@
  * Author: Piotr Brendel
  */
 
-#include "AKQReducedSComplexSupplier.hpp"
-#include "FundGroup.hpp"
-#include "HomologyTraits.hpp"
+#include "AKQReducedSComplexSupplier.h"
+#include "FundGroup.h"
+#include "HomologyTraits.h"
 
 #include "Logger.h"
 

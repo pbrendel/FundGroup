@@ -55,5 +55,7 @@ private:
 
 };
 
+#include "FundGroup.hpp"
+
 #endif	/* FUNDGROUP_H */
 

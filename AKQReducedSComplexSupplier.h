@@ -53,5 +53,7 @@ InputSComplexPtr    _complex;
     AlgorithmPtr        _algorithm;
 };
 
+#include "AKQReducedSComplexSupplier.hpp"
+
 #endif	/* AKQREDUCEDSCOMPLEXSUPPLIER_H */
 

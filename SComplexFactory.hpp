@@ -11,9 +11,8 @@
 #include <exception>
 #include <fstream>
 
-#include <capd/bitSet/BitmapT.hpp>
-#include <capd/bitSet/EuclBitSetT.hpp>
-#include <capd/repSet/ECellMDCodeT.h>
+#include "CubSetFactory.h"
+#include "CubCellSetFactory.h"
 
 #include "Logger.h"
 
@@ -21,124 +20,26 @@ template <int DIM>
 typename SComplexFactory<CubSComplex<DIM> >::SComplexPtr
 SComplexFactory<CubSComplex<DIM> >::Load(const char* filename)
 {
-    std::ifstream input(filename);
-    if (!input.is_open())
-    {
-        throw std::runtime_error(std::string("cannot open file ") + filename);
-    }
-
-    Logger::Begin(Logger::Details, "parsing data");
-    Cubes cubes;
-    BitmapSizes sizes(DIM);
-    std::string line;
-    while (getline(input, line))
-    {
-        if (line.find_first_of("#", 0) != std::string::npos)
-        {
-            continue;
-        }
-        std::istringstream tokens(line);
-        Cube cube;
-        Coord coord;
-        while(tokens >> coord)
-        {
-            int index = std::min(static_cast<int>(cube.size()), DIM - 1);
-            sizes[index].Update(coord);
-            cube.push_back(coord);
-        }
-        if (cube.size() == DIM)
-        {
-            cubes.push_back(cube);
-        }
-    }
-    input.close();
-    Logger::End();
-    Logger::Log(Logger::Details)<<"parsed "<<cubes.size()<<" cubes"<<std::endl;
-
-    return Create(cubes, sizes);
+    //CubCellSetPtr cubCellSet = CubCellSetFactory<CubCellSet>::Load(filename, true);
+    //return Create(cubCellSet);
+    CubSetPtr cubSet = CubSetFactory<CubSet>::Load(filename, true);
+    return Create(cubSet);
 }
 
 template <int DIM>
 typename SComplexFactory<CubSComplex<DIM> >::SComplexPtr
-SComplexFactory<CubSComplex<DIM> >::Create(DebugComplexType debugComplexType)
+SComplexFactory<CubSComplex<DIM> >::Create(DebugComplexType type)
 {
-    Cubes cubes;
-    BitmapSizes sizes;
-    switch (debugComplexType)
-    {
-        case DCT_Sphere2:
-            FillSphere2(cubes, sizes);
-            break;
-        case DCT_Sphere3:
-            FillSphere3(cubes, sizes);
-            break;
-        case DCT_Torus:
-            FillTorus(cubes, sizes);
-            break;
-        case DCT_Skeleton:
-            FillSkeleton(cubes, sizes);
-            break;
-        case DCT_Custom0:
-            FillCustom0(cubes, sizes);
-            break;
-        default:
-            throw std::logic_error("not implemented");
-    }
-    return Create(cubes, sizes);
+    //CubCellSetPtr cubCellSet = CubCellSetFactory<CubCellSet>::Create(type, true);
+    //return Create(cubCellSet);
+    CubSetPtr cubSet = CubSetFactory<CubSet>::Create(type, true);
+    return Create(cubSet);
 }
 
 template <int DIM>
 typename SComplexFactory<CubSComplex<DIM> >::SComplexPtr
-SComplexFactory<CubSComplex<DIM> >::Create(Cubes& cubes, BitmapSizes& sizes)
+SComplexFactory<CubSComplex<DIM> >::Create(CubCellSetPtr cubCellSet)
 {
-    //return CreateWithCubCellSet(cubes, sizes, true);
-    return CreateWithCubSet(cubes, sizes, true);
-}
-
-template <int DIM>
-typename SComplexFactory<CubSComplex<DIM> >::SComplexPtr
-SComplexFactory<CubSComplex<DIM> >::CreateWithCubCellSet(Cubes& cubes, BitmapSizes& sizes, bool shave)
-{
-    // recalculating into RedHom CubCellSet internal format
-    Logger::Begin(Logger::Details, "Creating CubCellSet");
-    std::vector<int> cubCellSetSizes(DIM);
-    for (int i = 0; i < DIM; i++)
-    {
-        Logger::Log(Logger::Debug)<<sizes[i].Size()<<std::endl;
-        cubCellSetSizes[i] = 2 * sizes[i].Size() + 1;
-    }
-    CubCellSetPtr cubCellSet = CubCellSetPtr(new CubCellSet(&cubCellSetSizes[0], true));
-
-    // renormalizing and adding cubes
-    int cube[DIM];
-    size_t count = cubes.size();
-    for (size_t i = 0; i < count; i++)
-    {
-        Cube c = cubes[i];
-        for (size_t j = 0; j < DIM; j++)
-        {
-            // recalculating into RedHom CubCellSet internal format
-            cube[j] = 2 * c[j] - sizes[j]._min + 1;
-        }
-        cubCellSet().insert(&cube[0]);
-    }
-    Logger::End();
-
-    Logger::Begin(Logger::Details, "creating lower dimensional cubes");
-    cubCellSet().fillWithSubEmbDimCells();
-    Logger::End();
-
-    if (shave)
-    {
-        Logger::Begin(Logger::Details, "shaving");
-        count = static_cast<size_t>(cubCellSet().shave());
-        if (Logger::PrintShavedCellsCount())
-        {
-            Logger::Log(Logger::Details)<<"shaved "<<count<<" cubes"<<std::endl;
-        }
-        Logger::End();
-    }
-
     Logger::Begin(Logger::Details, "creating SComplex");
     SComplexPtr complex = SComplexPtr(new SComplexType(cubCellSet));
     Logger::End();
@@ -148,47 +49,8 @@ SComplexFactory<CubSComplex<DIM> >::CreateWithCubCellSet(Cubes& cubes, BitmapSiz
 
 template <int DIM>
 typename SComplexFactory<CubSComplex<DIM> >::SComplexPtr
-SComplexFactory<CubSComplex<DIM> >::CreateWithCubSet(Cubes& cubes, BitmapSizes& sizes, bool shave)
+SComplexFactory<CubSComplex<DIM> >::Create(CubSetPtr cubSet)
 {
-   // recalculating into RedHom CubSet internal format
-    Logger::Begin(Logger::Details, "Creating CubSet");
-    std::vector<int> cubSetSizes(DIM);
-    for (int i = 0; i < DIM; i++)
-    {
-        Logger::Log(Logger::Debug)<<sizes[i].Size()<<std::endl;
-        cubSetSizes[i] = sizes[i].Size();
-    }
-
-    CubSetPtr cubSet = CubSetPtr(new CubSet(&cubSetSizes[0]));
-
-    // renormalizing and adding cubes
-    int cube[DIM];
-    size_t count = cubes.size();
-    for (size_t i = 0; i < count; i++)
-    {
-        Cube c = cubes[i];
-        for (size_t j = 0; j < DIM; j++)
-        {
-            // recalculating into RedHom CubSet internal format
-            cube[j] = c[j] - sizes[j]._min;
-        }
-        cubSet().insert(&cube[0]);
-    }
-    cubSet().addEmptyCollar();
-    Logger::End();
-
-    if (shave)
-    {
-        Logger::Begin(Logger::Details, "shaving");
-    //    cubSet().shaveBI();
-        if (Logger::PrintShavedCellsCount())
-        {
-            count = count - static_cast<size_t>(cubSet().cardinality());
-            Logger::Log(Logger::Details)<<"shaved "<<count<<" cubes"<<std::endl;
-        }
-        Logger::End();
-    }
-
     Logger::Begin(Logger::Details, "creating CubCellSet");
     CubCellSetPtr cubCellSet = CubCellSetPtr(new CubCellSet(cubSet()));
     Logger::End();
@@ -198,107 +60,6 @@ SComplexFactory<CubSComplex<DIM> >::CreateWithCubSet(Cubes& cubes, BitmapSizes& 
     Logger::End();
 
     return complex;
-
-
-}
-
-template <int DIM>
-void SComplexFactory<CubSComplex<DIM> >::FillSphere2(Cubes& cubes, BitmapSizes& sizes)
-{
-    assert(DIM == 3);
-    sizes.push_back(BitmapSize(3));
-    sizes.push_back(BitmapSize(3));
-    sizes.push_back(BitmapSize(3));
-    // filling with 2-sphere (a cube with tunnel)
-    Cube cube(3);
-    for (Coord i = 0; i < 3; i++)
-    {
-        cube[0] = i;
-        for (Coord j = 0; j < 3; j++)
-        {
-            // leaving empty tunnel
-            if (i == 1 && j == 1)
-            {
-                continue;
-            }
-            cube[1] = j;
-            for (Coord k = 0; k < 3; k++)
-            {
-                cube[2] = k;
-                cubes.push_back(cube);
-            }
-        }
-    }
-}
-
-template <int DIM>
-void SComplexFactory<CubSComplex<DIM> >::FillSphere3(Cubes& cubes, BitmapSizes& sizes)
-{
-    assert(DIM == 3);
-    sizes.push_back(BitmapSize(3));
-    sizes.push_back(BitmapSize(3));
-    sizes.push_back(BitmapSize(3));
-    // filling with 3-sphere (an "empty" cube)
-    Cube cube(DIM);
-    for (Coord i = 0; i < 3; i++)
-    {
-        cube[0] = i;
-        for (Coord j = 0; j < 3; j++)
-        {
-            cube[1] = j;
-            for (Coord k = 0; k < 3; k++)
-            {
-                // leaving center empty
-                if (i == 1 && j == 1 && k == 1)
-                {
-                    continue;
-                }
-                cube[2] = k;
-                cubes.push_back(cube);
-            }
-        }
-    }
-}
-
-template <int DIM>
-void SComplexFactory<CubSComplex<DIM> >::FillTorus(Cubes& cubes, BitmapSizes& sizes)
-{
-    throw std::logic_error("not implemented");
-}
-
-template <int DIM>
-void SComplexFactory<CubSComplex<DIM> >::FillSkeleton(Cubes& cubes, BitmapSizes& sizes)
-{
-    assert(DIM == 3);
-    sizes.push_back(BitmapSize(3));
-    sizes.push_back(BitmapSize(3));
-    sizes.push_back(BitmapSize(3));
-    // filling with "edges of cube" in R^3
-    Cube cube(DIM);
-    for (Coord i = 0; i < 3; i++)
-    {
-        cube[0] = i;
-        for (Coord j = 0; j < 3; j++)
-        {
-            cube[1] = j;
-            for (Coord k = 0; k < 3; k++)
-            {
-                // leaving tunnels in each dimension empty
-                if ((i == 1 && j == 1) || (i == 1 && k == 1) || (j == 1 && k == 1))
-                {
-                    continue;
-                }
-                cube[2] = k;
-                cubes.push_back(cube);
-            }
-        }
-    }
-}
-
-template <int DIM>
-void SComplexFactory<CubSComplex<DIM> >::FillCustom0(Cubes& cubes, BitmapSizes& sizes)
-{
-    throw std::logic_error("not implemented");
 }
 
 typename SComplexFactory<SimplexSComplex>::SComplexPtr

@@ -8,7 +8,7 @@
 
 #include "CoreducedSComplexSupplier.h"
 
-#include "HomologyHelpers.hpp"
+#include "HomologyHelpers.h"
 #include "SComplexFactory.h"
 
 #include "Logger.h"

@@ -44,5 +44,7 @@ private:
     FilterPtr   _filter;
 };
 
+#include "CoreducedSComplexSupplier.hpp"
+
 #endif	/* COREDUCEDSCOMPLEXSUPPLIER_H */
 

@@ -12,8 +12,6 @@
 #include <sstream>
 #include <vector>
 
-#include "SComplexFactory.hpp"
-
 #include "Logger.h"
 
 template <typename ComplexSupplierType>

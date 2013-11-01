@@ -28,5 +28,7 @@ public:
     static std::vector<int> GetBettiNumbers(SComplexPtr complex);
 };
 
+#include "HomologyHelpers.hpp"
+
 #endif	/* HOMOLOGYHELPERS_H */
 

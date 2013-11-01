@@ -26,7 +26,7 @@ public:
     typedef typename Traits::ChainType      Chain;
 
     CoreducedSComplexSupplier(const char* filename);
-    CoreducedSComplexSupplier(DebugComplexType debugComplexType);
+    CoreducedSComplexSupplier(DebugComplexType type);
     bool GetCells(CellsByDim& cellsByDim, std::map<Cell, Chain>& _2Boundaries);
     Chain GetBoundary(const Cell& cell);
 

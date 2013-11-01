@@ -21,9 +21,9 @@ CoreducedSComplexSupplier<Traits>::CoreducedSComplexSupplier(const char* filenam
 }
 
 template <typename Traits>
-CoreducedSComplexSupplier<Traits>::CoreducedSComplexSupplier(DebugComplexType debugComplexType)
+CoreducedSComplexSupplier<Traits>::CoreducedSComplexSupplier(DebugComplexType type)
 {
-    _complex = SComplexFactory<SComplex>::Create(debugComplexType);
+    _complex = SComplexFactory<SComplex>::Create(type);
     CreateFilter();
 }
 

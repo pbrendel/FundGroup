@@ -4,6 +4,7 @@
  */
 
 #include "AKQReducedSComplexSupplier.h"
+#include "CollapsedAKQReducedCubSComplexSupplier.h"
 #include "FundGroup.h"
 #include "HomologyTraits.h"
 
@@ -12,9 +13,14 @@
 int main(int argc, char** argv)
 {
     Logger::Begin(Logger::Output, "computing for cubes");
-    FundGroup<AKQReducedSComplexSupplier<CubicalHomology<3> > > G("cubes_c.txt");
-    Logger::Log(Logger::Output)<<G<<std::endl;
+    FundGroup<CollapsedAKQReducedCubSComplexSupplier<CubicalHomology<3> > > G("cubes_c.txt");
+    //Logger::Log(Logger::Output)<<G<<std::endl;
     Logger::End();
+
+    //Logger::Begin(Logger::Output, "computing for cubes");
+    //FundGroup<AKQReducedSComplexSupplier<CubicalHomology<3> > > G("cubes_c.txt");
+    //Logger::Log(Logger::Output)<<G<<std::endl;
+    //Logger::End();
 
     //Logger::Begin(Logger::Output, "computing for general kappa map");
     //FundGroup<AKQReducedSComplexSupplier<SComplexHomology> > H("kappa.txt");

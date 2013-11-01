@@ -27,14 +27,13 @@ public:
     typedef boost::shared_ptr<SComplexType>         SComplexPtr;
     typedef typename CubSComplex<DIM>::BCubCellSet  CubCellSet;
     typedef CRef<CubCellSet>                        CubCellSetPtr;
-    typedef typename CubCellSet::EuclSet            EuclSet;
-    typedef CubSetT<EuclSet>                        CubSet;
+    typedef typename CubSComplex<DIM>::BCubSet      CubSet;
     typedef CRef<CubSet>                            CubSetPtr;
 
     static SComplexPtr Load(const char* filename);
     static SComplexPtr Create(DebugComplexType type);
-    static SComplexPtr Create(CubCellSetPtr);
-    static SComplexPtr Create(CubSetPtr);
+    static SComplexPtr Create(CubCellSetPtr cubCellSet);
+    static SComplexPtr Create(CubSetPtr cubSet);
 };
 
 template <>

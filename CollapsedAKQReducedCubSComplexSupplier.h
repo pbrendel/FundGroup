@@ -1,23 +1,39 @@
 /*
- * File:   AKQReducedSComplexSupplier.h
+ * File:   CollapsedAKQReducedCubSComplexSupplier.h
  * Author: Piotr Brendel
  */
 
-#ifndef AKQREDUCEDSCOMPLEXSUPPLIER_H
-#define	AKQREDUCEDSCOMPLEXSUPPLIER_H
+#ifndef COLLAPSEDAKQREDUCEDCUBSCOMPLEXSUPPLIER_H
+#define	COLLAPSEDAKQREDUCEDCUBSCOMPLEXSUPPLIER_H
 
 #include <map>
 #include <set>
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include <redHom/algorithm/Coreduction.hpp>
+#include <redHom/complex/scomplex/SComplex.hpp>
+
+//temp!!!
+
+#include <redHom/complex/cubical/CubSComplex.hpp>
 
 #include "DebugComplexType.h"
 
 template <typename Traits>
-class AKQReducedSComplexSupplier
+class CollapsedAKQReducedCubSComplexSupplier
 {
-    typedef typename Traits::InputSComplexType  InputSComplex;
+    typedef typename Traits::CoordType          Coord;
+    typedef typename Traits::CubSetType         CubSet;
+    typedef typename Traits::CubSetPtrType      CubSetPtr;
+    typedef typename Traits::CubCellSetType     CubCellSet;
+    typedef typename Traits::CubCellSetPtrType  CubCellSetPtr;
+    enum
+    {
+        DIM = Traits::DIM,
+    };
+
+    //typedef SComplex                            SComplexType;
+    typedef CubSComplex<DIM>                    InputSComplex;
     typedef boost::shared_ptr<InputSComplex>    InputSComplexPtr;
     typedef typename Traits::OutputSComplexType OutputSComplex;
     typedef typename Traits::ScalarType         Scalar;
@@ -38,8 +54,8 @@ public:
     typedef std::vector<Cells>                  CellsByDim;
     typedef typename Traits::ChainType          Chain;
 
-    AKQReducedSComplexSupplier(const char* filename);
-    AKQReducedSComplexSupplier(DebugComplexType type);
+    CollapsedAKQReducedCubSComplexSupplier(const char* filename);
+    CollapsedAKQReducedCubSComplexSupplier(DebugComplexType type);
     bool GetCells(CellsByDim& cellsByDim, std::map<Cell, Chain>& _2Boundaries);
     Chain GetBoundary(const Cell& cell);
 
@@ -47,13 +63,14 @@ public:
 
 private:
 
+    void CreateComplex(CubSetPtr cubSet, bool collapse);
     void CreateAlgorithm();
 
     InputSComplexPtr    _complex;
     AlgorithmPtr        _algorithm;
 };
 
-#include "AKQReducedSComplexSupplier.hpp"
+#include "CollapsedAKQReducedCubSComplexSupplier.hpp"
 
-#endif	/* AKQREDUCEDSCOMPLEXSUPPLIER_H */
+#endif	/* COLLAPSEDAKQREDUCEDCUBSCOMPLEXSUPPLIER_H */
 

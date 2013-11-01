@@ -38,16 +38,25 @@ public:
     typedef ChainT<ChainContainer<CellType, ScalarType> >   ChainType;
 };
 
-template <int DIM>
+template <int D>
 class CubicalHomology
 {
 public:
 
-    typedef CubSComplex<DIM>                                InputSComplexType;
+    typedef CubSComplex<D>                                  InputSComplexType;
     typedef SComplex<SComplexDefaultTraits>                 OutputSComplexType;
     typedef typename OutputSComplexType::Cell               CellType;
     typedef double                                          ScalarType;
     typedef ChainT<ChainContainer<CellType, ScalarType> >   ChainType;
+    typedef typename InputSComplexType::BCubSet             CubSetType;
+    typedef CRef<CubSetType>                                CubSetPtrType;
+    typedef typename InputSComplexType::BCubCellSet         CubCellSetType;
+    typedef CRef<CubCellSetType>                            CubCellSetPtrType;
+    typedef size_t                                          CoordType;
+    enum
+    {
+        DIM = D,
+    };
 };
 
 class SimplicialHomology

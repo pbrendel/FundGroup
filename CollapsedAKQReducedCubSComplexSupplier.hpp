@@ -1,34 +1,65 @@
 /*
- * File:   AKQReducedSComplexSupplier.hpp
+ * File:   CollapsedAKQReducedCubSComplexSupplier.hpp
  * Author: Piotr Brendel
  */
 
-#ifndef AKQREDUCEDSCOMPLEXSUPPLIER_HPP
-#define	AKQREDUCEDSCOMPLEXSUPPLIER_HPP
+#ifndef COLLAPSEDAKQREDUCEDCUBSCOMPLEXSUPPLIER_HPP
+#define	COLLAPSEDAKQREDUCEDCUBSCOMPLEXSUPPLIER_HPP
 
-#include "AKQReducedSComplexSupplier.h"
+#include "CollapsedAKQReducedCubSComplexSupplier.h"
 
+#include "CubSetFactory.h"
 #include "HomologyHelpers.h"
 #include "SComplexFactory.h"
 
 #include "Logger.h"
 
 template <typename Traits>
-AKQReducedSComplexSupplier<Traits>::AKQReducedSComplexSupplier(const char* filename)
+CollapsedAKQReducedCubSComplexSupplier<Traits>::CollapsedAKQReducedCubSComplexSupplier(const char* filename)
 {
-    _complex = SComplexFactory<InputSComplex>::Load(filename);
+    CubSetPtr cubSet = CubSetFactory<CubSet>::Load(filename, true);
+    CreateComplex(cubSet, true);
     CreateAlgorithm();
 }
 
 template <typename Traits>
-AKQReducedSComplexSupplier<Traits>::AKQReducedSComplexSupplier(DebugComplexType type)
+CollapsedAKQReducedCubSComplexSupplier<Traits>::CollapsedAKQReducedCubSComplexSupplier(DebugComplexType type)
 {
-    _complex = SComplexFactory<InputSComplex>::Create(type);
+    CubSetPtr cubSet = CubSetFactory<CubSet>::Create(type, true);
+    CreateComplex(cubSet, true);
     CreateAlgorithm();
 }
 
 template <typename Traits>
-void AKQReducedSComplexSupplier<Traits>::CreateAlgorithm()
+void CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateComplex(CubSetPtr cubSet, bool collapse)
+{
+    if (collapse)
+    {
+        Logger::Begin(Logger::Details, "computing acyclic subspace");
+
+        // acyclic subspace algorithm setup
+        typedef typename CubSet::CubSetT_CubSetT_Ptr AccSubAlgorithm;
+        AccSubAlgorithm accSubAlgorithm = &CubSet::acyclicSubspaceBI;
+        CubSet::neighbAcyclicBI = &CubSet::neighbAcyclicLT;
+
+        // creating copy of original cubical set
+        CubSet acyclicSubset(cubSet());
+
+        // compute acyclic subspace
+        (cubSet().*accSubAlgorithm)(acyclicSubset);
+        Logger::Log(Logger::Details)<<"computed acyclic subset size: "<<acyclicSubset.cardinality()<<std::endl;
+        Logger::Log(Logger::Details)<<"cubes left: "<<cubSet().cardinality()<<std::endl;
+
+        Logger::End();
+    }
+
+    Logger::Begin(Logger::Details, "creating SComplex from cubical set");
+    _complex = SComplexFactory<InputSComplex>::Create(cubSet);
+    Logger::End();
+}
+
+template <typename Traits>
+void CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateAlgorithm()
 {
     Logger::Begin(Logger::Details, "performing coreductions");
     _algorithm = AlgorithmPtr(new Algorithm(new Strategy(*_complex)));
@@ -43,7 +74,7 @@ void AKQReducedSComplexSupplier<Traits>::CreateAlgorithm()
 }
 
 template <typename Traits>
-bool AKQReducedSComplexSupplier<Traits>::GetCells(CellsByDim& cellsByDim,
+bool CollapsedAKQReducedCubSComplexSupplier<Traits>::GetCells(CellsByDim& cellsByDim,
                                                   std::map<Cell,Chain>& _2Boundaries)
 {
     OutputSComplex* outputComplex = _algorithm->getStrategy()->getOutputComplex();
@@ -76,8 +107,8 @@ bool AKQReducedSComplexSupplier<Traits>::GetCells(CellsByDim& cellsByDim,
 }
 
 template <typename Traits>
-typename AKQReducedSComplexSupplier<Traits>::Chain
-AKQReducedSComplexSupplier<Traits>::GetBoundary(const Cell& cell)
+typename CollapsedAKQReducedCubSComplexSupplier<Traits>::Chain
+CollapsedAKQReducedCubSComplexSupplier<Traits>::GetBoundary(const Cell& cell)
 {
     OutputSComplex* outputComplex = _algorithm->getStrategy()->getOutputComplex();
     Chain boundary;
@@ -92,10 +123,10 @@ AKQReducedSComplexSupplier<Traits>::GetBoundary(const Cell& cell)
 }
 
 template <typename Traits>
-void AKQReducedSComplexSupplier<Traits>::PrintDebug()
+void CollapsedAKQReducedCubSComplexSupplier<Traits>::PrintDebug()
 {
     Logger::Log(Logger::Debug)<<"homology signature:"<<std::endl<<_algorithm->getExtractedSignature()<<std::endl;
 }
 
-#endif	/* AKQREDUCEDSCOMPLEXSUPPLIER_HPP */
+#endif	/* COLLAPSEDAKQREDUCEDCUBSCOMPLEXSUPPLIER_HPP */
 

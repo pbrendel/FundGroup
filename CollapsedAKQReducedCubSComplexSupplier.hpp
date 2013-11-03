@@ -182,10 +182,10 @@ void CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateKappaMapFromQuotient(
             cellsIndicesOffsets[i] = cellsIndicesOffsets[i - 1] + _cellsCountByDim[i - 1];
         }
         totalCellsCount += _cellsCountByDim[i];
-        Logger::Log(Logger::Details)<<_cellsCountByDim[i]<<" cells in dim "<<i;
-        Logger::Log(Logger::Details)<<" with offset "<<cellsIndicesOffsets[i]<<std::endl;
+        Logger::Log(Logger::Debug)<<_cellsCountByDim[i]<<" cells in dim "<<i;
+        Logger::Log(Logger::Debug)<<" with offset "<<cellsIndicesOffsets[i]<<std::endl;
     }
-    Logger::Log(Logger::Details)<<"total cells generated: "<<totalCellsCount<<std::endl;
+    Logger::Log(Logger::Debug)<<"total cells generated: "<<totalCellsCount<<std::endl;
 
     dims.resize(totalCellsCount);
     kappaMap.clear();

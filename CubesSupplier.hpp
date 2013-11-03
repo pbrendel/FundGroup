@@ -6,11 +6,16 @@
 #ifndef CUBESSUPPLIER_HPP
 #define	CUBESSUPPLIER_HPP
 
+#define USE_MEMORY_STREAM
+
 #include "CubesSupplier.h"
 
 #include <fstream>
 #include <limits>
 #include <sstream>
+#ifdef USE_MEMORY_STREAM
+#include <cstdio>
+#endif
 
 #include "Logger.h"
 
@@ -56,11 +61,28 @@ size_t CubesSupplier<T, DIM>::Bound::Size()
 template <typename T, int DIM>
 void CubesSupplier<T, DIM>::Load(const char* filename, Cubes& cubes, Bounds& bounds)
 {
+#ifdef USE_MEMORY_STREAM
+    FILE* fp = fopen(filename, "rb");
+    if (fp == 0)
+    {
+        throw std::runtime_error(std::string("cannot open file ") + filename);
+    }
+    fseek(fp, 0, SEEK_END);
+    long int size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    char* buffer = new char[size];
+    fread(buffer, sizeof(unsigned char), size, fp);
+    fclose(fp);
+    std::stringbuf inputBuf(std::ios_base::in);
+    inputBuf.pubsetbuf(buffer, static_cast<std::streamsize>(size));
+    std::istream input(&inputBuf);
+#else
     std::ifstream input(filename);
     if (!input.is_open())
     {
         throw std::runtime_error(std::string("cannot open file ") + filename);
     }
+#endif
 
     cubes.clear();
     bounds.clear();
@@ -79,7 +101,11 @@ void CubesSupplier<T, DIM>::Load(const char* filename, Cubes& cubes, Bounds& bou
             break;
     }
 
+#ifdef USE_MEMORY_STREAM
+    delete [] buffer;
+#else
     input.close();
+#endif
     Logger::End();
     Logger::Log(Logger::Details)<<"parsed "<<cubes.size()<<" cubes"<<std::endl;
 }

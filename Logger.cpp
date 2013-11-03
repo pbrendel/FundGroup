@@ -19,7 +19,7 @@ namespace
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Logger::Level               Logger::_logLevel = Logger::Debug;
+Logger::Level               Logger::_logLevel = Logger::Assert;
 std::vector<Logger::Level>  Logger::_levels;
 std::vector<time_t>         Logger::_timers;
 

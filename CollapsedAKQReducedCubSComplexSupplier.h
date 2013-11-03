@@ -77,6 +77,7 @@ private:
         size_t                          _index;
         size_t                          _dim;
         std::vector<CellDescriptor*>    _faces;
+        std::vector<int>                _coefficients;
 
         CellDescriptor(size_t index, size_t dim)
             : _index(index)

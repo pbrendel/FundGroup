@@ -198,7 +198,7 @@ void CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateKappaMapFromQuotient(
         size_t index = cell->_index + cellsIndicesOffsets[cell->_dim];
         size_t faceIndexOffset = cellsIndicesOffsets[cell->_dim - 1];
         dims[index] = cell->_dim;
-        int coincidenceIndex = 1;
+        std::vector<int>::iterator cIt = cell->_coefficients.begin();
         for (typename CellsDescriptors::iterator fIt = cell->_faces.begin();
                                                  fIt != cell->_faces.end();
                                                  ++fIt)
@@ -206,8 +206,8 @@ void CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateKappaMapFromQuotient(
             CellDescriptor* face = *fIt;
             kappaMap.push_back(KappaMapEntry(static_cast<Id>(index),
                                              static_cast<Id>(face->_index + faceIndexOffset),
-                                             coincidenceIndex));
-            coincidenceIndex = -coincidenceIndex;
+                                             *cIt));
+            cIt++;
         }
     }
 
@@ -243,17 +243,37 @@ CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateCell(CubCellSetPtr cubCell
     _allCells.push_back(cell);
     _cellsMapByDim[dim][it] = cell;
     std::vector<BitCoordIterator> faces;
-    cubCellSet().getFaces(it, faces);
+    std::vector<int> coefficients;
+    cubCellSet().getFaces(it, faces, coefficients);
     typename std::vector<BitCoordIterator>::iterator fIt = faces.begin();
     typename std::vector<BitCoordIterator>::iterator fItEnd = faces.end();
+    std::vector<int>::iterator cIt = coefficients.begin();
     for ( ; fIt != fItEnd; ++fIt)
     {
         cell->_faces.push_back(AddCell(cubCellSet, *fIt, dim - 1));
+        cell->_coefficients.push_back(*cIt);
+        cIt++;
     }
     // adding null point cell to each "non complete" 1-cell boundary
     if (dim == 1 && cell->_faces.size() < 2)
     {
-        cell->_faces.push_back(_nullSetCell);
+        if (cell->_faces.size() == 0)
+        {
+            cell->_faces.push_back(_nullSetCell);
+            //cell->_faces.push_back(_nullSetCell);
+            cell->_coefficients.push_back(1);
+            //cell->_coefficients.push_back(-1);
+        }
+        else if (cell->_coefficients[0] == 1)
+        {
+            cell->_faces.push_back(_nullSetCell);
+            cell->_coefficients.push_back(-1);
+        }
+        else
+        {
+            cell->_faces.push_back(_nullSetCell);
+            cell->_coefficients.push_back(1);
+        }
     }
     return cell;
 }

@@ -65,28 +65,20 @@ void CubesSupplier<T, DIM>::Load(const char* filename, Cubes& cubes, Bounds& bou
     cubes.clear();
     bounds.clear();
     bounds.resize(DIM);
+
     Logger::Begin(Logger::Details, "parsing data");
-    std::string line;
-    while (getline(input, line))
+
+    FileType type = DetermineFileType(filename);
+    switch (type)
     {
-        if (line.find_first_of("#", 0) != std::string::npos)
-        {
-            continue;
-        }
-        std::istringstream tokens(line);
-        Cube cube;
-        Coord coord;
-        while(tokens >> coord)
-        {
-            int index = std::min(static_cast<int>(cube.size()), DIM - 1);
-            bounds[index].Update(coord);
-            cube.push_back(coord);
-        }
-        if (cube.size() == DIM)
-        {
-            cubes.push_back(cube);
-        }
+        case FT_HapBitmap:
+            ParseHapBitmap(input, cubes, bounds);
+            break;
+        default:
+            ParseFullCubes(input, cubes, bounds);
+            break;
     }
+
     input.close();
     Logger::End();
     Logger::Log(Logger::Details)<<"parsed "<<cubes.size()<<" cubes"<<std::endl;
@@ -116,6 +108,75 @@ void CubesSupplier<T, DIM>::Create(DebugComplexType type, Cubes& cubes, Bounds& 
             break;
         default:
             throw std::logic_error("not implemented");
+    }
+}
+
+template <typename T, int DIM>
+void CubesSupplier<T, DIM>::ParseFullCubes(std::istream& str, Cubes& cubes, Bounds& bounds)
+{
+    std::string line;
+    while (getline(str, line))
+    {
+        if (line.find_first_of("#", 0) != std::string::npos)
+        {
+            continue;
+        }
+        std::istringstream tokens(line);
+        Cube cube;
+        Coord coord;
+        while(tokens >> coord)
+        {
+            int index = std::min(static_cast<int>(cube.size()), DIM - 1);
+            bounds[index].Update(coord);
+            cube.push_back(coord);
+        }
+        if (cube.size() == DIM)
+        {
+            cubes.push_back(cube);
+        }
+    }
+}
+
+template <typename T, int DIM>
+void CubesSupplier<T, DIM>::ParseHapBitmap(istream& str, Cubes& cubes, Bounds& bounds)
+{
+    int currentDim = -1;
+    Cube currentCube;
+    int eof = std::char_traits<char>::eof();
+    int c = 0;
+
+    while ((c = str.get()) != eof)
+    {
+        if (c == '[')
+        {
+            currentDim++;
+            while (currentDim > static_cast<int>(currentCube.size()) - 1)
+            {
+                bounds[currentCube.size()].Update(0);
+                currentCube.push_back(0);
+            }
+            currentCube[currentDim] = 0;
+        }
+        else if (c == ']')
+        {
+            currentDim--;
+        }
+        else if (c == ',')
+        {
+            currentCube[currentDim]++;
+        }
+        else if (c == '1')
+        {
+            for (int i = 0; i < currentCube.size(); i++)
+            {
+                bounds[i].Update(currentCube[i]);
+            }
+            cubes.push_back(currentCube);
+        }
+        else
+        {
+            continue;
+        }
     }
 }
 
@@ -217,6 +278,31 @@ template <typename T, int DIM>
 void CubesSupplier<T, DIM>::FillCustom0(Cubes& cubes, Bounds& bounds)
 {
     throw std::logic_error("not implemented");
+}
+
+template <typename T, int DIM>
+typename CubesSupplier<T, DIM>::FileType
+CubesSupplier<T, DIM>::DetermineFileType(const char* filename)
+{
+    // simple but error-prone determining file type by its extension
+
+    size_t len = strlen(filename);
+
+    if (len < 5)
+    {
+        // cannot determine by its extension
+        // assuming default - list of full cubes
+        return FT_FullCubes;
+    }
+
+    if (   (tolower(filename[len - 3]) == 'h')
+        && (tolower(filename[len - 2]) == 'a')
+        && (tolower(filename[len - 1]) == 'p') )
+    {
+        return FT_HapBitmap;
+    }
+
+    return FT_FullCubes;
 }
 
 #endif	/* CUBESSUPPLIER_HPP */

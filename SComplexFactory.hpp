@@ -143,7 +143,7 @@ SComplexFactory<SComplex<Traits> >::DetermineFileType(const char* filename)
     }
 
     if (   (tolower(filename[len - 3]) == 'c')
-        && (tolower(filename[len - 3]) == 'u')
+        && (tolower(filename[len - 2]) == 'u')
         && (tolower(filename[len - 1]) == 'b') )
     {
         return FT_Cubes;

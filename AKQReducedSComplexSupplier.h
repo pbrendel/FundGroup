@@ -21,14 +21,15 @@ class AKQReducedSComplexSupplier
     typedef boost::shared_ptr<InputSComplex>    InputSComplexPtr;
     typedef typename Traits::OutputSComplexType OutputSComplex;
     typedef typename Traits::ScalarType         Scalar;
+    typedef typename Traits::IntType            Int;
 
     typedef typename OutputSComplex::Dim        Dim;
     typedef typename OutputSComplex::ColoredIterators::Iterators::DimCells DimCells;
     typedef typename OutputSComplex::ColoredIterators::Iterators::BdCells  BdCells;
 
-    typedef AKQReduceStrategy<InputSComplex>        Strategy;
-    typedef CoreductionAlgorithm<Strategy, Scalar>  Algorithm;
-    typedef boost::shared_ptr<Algorithm>            AlgorithmPtr;
+    typedef AKQReduceStrategy<InputSComplex>            Strategy;
+    typedef CoreductionAlgorithm<Strategy, Scalar, Int> Algorithm;
+    typedef boost::shared_ptr<Algorithm>                AlgorithmPtr;
 
 public:
 

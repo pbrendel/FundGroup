@@ -33,6 +33,7 @@ class CollapsedAKQReducedCubSComplexSupplier
     typedef boost::shared_ptr<InputSComplex>        InputSComplexPtr;
     typedef typename Traits::OutputSComplexType     OutputSComplex;
     typedef typename Traits::ScalarType             Scalar;
+    typedef typename Traits::IntType                Int;
 
     typedef typename InputSComplex::Id              Id;
     typedef typename InputSComplex::Dim             Dim;
@@ -40,12 +41,12 @@ class CollapsedAKQReducedCubSComplexSupplier
     typedef typename InputSComplex::KappaMap        KappaMap;
     typedef typename InputSComplex::KappaMapEntry   KappaMapEntry;
 
-    typedef typename OutputSComplex::ColoredIterators::Iterators::DimCells DimCells;
-    typedef typename OutputSComplex::ColoredIterators::Iterators::BdCells  BdCells;
+    typedef typename OutputSComplex::Iterators::DimCells DimCells;
+    typedef typename OutputSComplex::Iterators::BdCells  BdCells;
 
-    typedef AKQReduceStrategy<InputSComplex>        Strategy;
-    typedef CoreductionAlgorithm<Strategy, Scalar>  Algorithm;
-    typedef boost::shared_ptr<Algorithm>            AlgorithmPtr;
+    typedef AKQReduceStrategy<InputSComplex>            Strategy;
+    typedef CoreductionAlgorithm<Strategy, Scalar, Int> Algorithm;
+    typedef boost::shared_ptr<Algorithm>                AlgorithmPtr;
 
 public:
 
@@ -53,7 +54,7 @@ public:
     typedef typename OutputSComplex::Cell       Cell;
     typedef std::set<Cell>                      Cells;
     typedef std::vector<Cells>                  CellsByDim;
-    typedef typename Traits::ChainType          Chain;
+    typedef std::vector<std::pair<Cell, int> >  Chain;
 
     CollapsedAKQReducedCubSComplexSupplier(const char* filename);
     CollapsedAKQReducedCubSComplexSupplier(DebugComplexType type);
@@ -66,6 +67,7 @@ private:
 
     void CreateComplex(CubSetPtr cubSet);
     void CreateAlgorithm();
+    Chain GetOriginalHomotopicBoundary(const Cell& cell);
 
     InputSComplexPtr    _complex;
     AlgorithmPtr        _algorithm;

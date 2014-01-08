@@ -206,7 +206,7 @@ void FundGroup<ComplexSupplierType>::PrintDebug()
         }
     }
 
-    Logger::Log(Logger::Debug)<<"2 boundaries:"<<std::endl;
+    Logger::Log(Logger::Debug)<<"homotopic 2 boundaries:"<<std::endl;
     for (typename std::map<Cell, Chain>::iterator it = _2Boundaries.begin();
                                                   it != _2Boundaries.end();
                                                   ++it)
@@ -214,7 +214,7 @@ void FundGroup<ComplexSupplierType>::PrintDebug()
         Logger::Log(Logger::Debug)<<"cell: "<<it->first<<std::endl;
         for (typename Chain::iterator jt = it->second.begin(); jt != it->second.end(); ++jt)
         {
-            Logger::Log(Logger::Debug)<<jt->first<<std::endl;
+            Logger::Log(Logger::Debug)<<jt->first<<" "<<jt->second<<std::endl;
         }
     }
 }

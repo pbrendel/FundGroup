@@ -8,11 +8,13 @@
 
 #include "CollapsedAKQReducedCubSComplexSupplier.h"
 
+#include "AKQHomotopicPaths.h"
 #include "CubSetFactory.h"
 #include "HomologyHelpers.h"
 #include "SComplexFactory.h"
 
 #include "Logger.h"
+#include "AKQHomotopicPaths.h"
 
 template <typename Traits>
 CollapsedAKQReducedCubSComplexSupplier<Traits>::CollapsedAKQReducedCubSComplexSupplier(const char* filename)
@@ -103,7 +105,7 @@ bool CollapsedAKQReducedCubSComplexSupplier<Traits>::GetCells(CellsByDim& cellsB
     cellsByDim.resize(maxDim + 1);
     for (int dim = 0; dim <= maxDim; dim++)
     {
-        DimCells dimCells = outputComplex->iterators(1).dimCells(static_cast<Dim>(dim));
+        DimCells dimCells = outputComplex->iterators().dimCells(static_cast<Dim>(dim));
         typename DimCells::iterator it = dimCells.begin();
         typename DimCells::iterator itEnd = dimCells.end();
         for ( ; it != itEnd; ++it)
@@ -112,7 +114,8 @@ bool CollapsedAKQReducedCubSComplexSupplier<Traits>::GetCells(CellsByDim& cellsB
         }
     }
 
-    // if there are some 2-cells, take its boundaries
+    // if there are some 2-cells, take its (homotopic) boundaries
+    AKQHomotopicPaths<Traits> homotopicPaths(_algorithm->getStrategy());
     _2Boundaries.clear();
     if (cellsByDim.size() > 2)
     {
@@ -121,7 +124,8 @@ bool CollapsedAKQReducedCubSComplexSupplier<Traits>::GetCells(CellsByDim& cellsB
         typename Cells::iterator itEnd = _2cells.end();
         for ( ; it != itEnd; ++it)
         {
-            _2Boundaries[*it] = GetBoundary(*it);
+            _2Boundaries[*it] = homotopicPaths.GetHomotopicBoundary(*it);
+        //    _2Boundaries[*it] = GetBoundary(*it);
         }
     }
     return cellsByDim.size() > 0;
@@ -133,12 +137,14 @@ CollapsedAKQReducedCubSComplexSupplier<Traits>::GetBoundary(const Cell& cell)
 {
     OutputSComplex* outputComplex = _algorithm->getStrategy()->getOutputComplex();
     Chain boundary;
-    BdCells bdCells = outputComplex->iterators(1).bdCells(cell);
+    BdCells bdCells = outputComplex->iterators().bdCells(cell);
     typename BdCells::iterator it = bdCells.begin();
     typename BdCells::iterator itEnd = bdCells.end();
-    for( ; it != itEnd; ++it)
+    for ( ; it != itEnd; ++it)
     {
-        boundary[*it] = outputComplex->coincidenceIndex(cell, *it);
+        int ci = outputComplex->coincidenceIndex(cell, *it);
+        assert(ci != 0);
+        boundary.push_back(std::pair<Cell, int>(*it, ci));
     }
     return boundary;
 }

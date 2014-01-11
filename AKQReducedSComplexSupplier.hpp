@@ -8,7 +8,7 @@
 
 #include "AKQReducedSComplexSupplier.h"
 
-#include "HomologyHelpers.h"
+#include "AKQHomotopicPaths.h"
 #include "SComplexFactory.h"
 
 #include "Logger.h"
@@ -44,7 +44,7 @@ void AKQReducedSComplexSupplier<Traits>::CreateAlgorithm()
 
 template <typename Traits>
 bool AKQReducedSComplexSupplier<Traits>::GetCells(CellsByDim& cellsByDim,
-                                                  std::map<Cell,Chain>& _2Boundaries)
+                                                  std::map<Cell, Chain>& _2Boundaries)
 {
     OutputSComplex* outputComplex = _algorithm->getStrategy()->getOutputComplex();
     int maxDim = static_cast<int>(outputComplex->getDim());
@@ -61,6 +61,7 @@ bool AKQReducedSComplexSupplier<Traits>::GetCells(CellsByDim& cellsByDim,
     }
 
     // if there are some 2-cells, take its boundaries
+    AKQHomotopicPaths<AKQReducedSComplexSupplier<Traits> > homotopicPaths(_algorithm->getStrategy());
     _2Boundaries.clear();
     if (cellsByDim.size() > 2)
     {
@@ -69,7 +70,8 @@ bool AKQReducedSComplexSupplier<Traits>::GetCells(CellsByDim& cellsByDim,
         typename Cells::iterator itEnd = _2cells.end();
         for ( ; it != itEnd; ++it)
         {
-            _2Boundaries[*it] = GetBoundary(*it);
+            _2Boundaries[*it] = homotopicPaths.GetHomotopicBoundary(*it);
+            //_2Boundaries[*it] = GetBoundary(*it);
         }
     }
     return cellsByDim.size() > 0;
@@ -86,7 +88,9 @@ AKQReducedSComplexSupplier<Traits>::GetBoundary(const Cell& cell)
     typename BdCells::iterator itEnd = bdCells.end();
     for( ; it != itEnd; ++it)
     {
-        boundary[*it] = outputComplex->coincidenceIndex(cell, *it);
+        int ci = outputComplex->coincidenceIndex(cell, *it);
+        assert(ci != 0);
+        boundary.push_back(std::pair<Cell, int>(*it, ci));
     }
     return boundary;
 }

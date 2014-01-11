@@ -18,7 +18,14 @@
 template <typename Traits>
 class CollapsedAKQReducedCubSComplexSupplier
 {
-    typedef typename Traits::CoordType          Coord;
+public:
+
+    typedef typename Traits::GeneralSComplexType    InputSComplex;
+    typedef typename Traits::GeneralSComplexType    OutputSComplex;
+
+private:
+
+    typedef typename Traits::CubCoordType       Coord;
     typedef typename Traits::CubSetType         CubSet;
     typedef typename Traits::CubSetPtrType      CubSetPtr;
     typedef typename Traits::CubCellSetType     CubCellSet;
@@ -29,9 +36,7 @@ class CollapsedAKQReducedCubSComplexSupplier
     };
 
     // OutputSComplexType is a SComplex parametrized with DefaultTraits
-    typedef typename Traits::OutputSComplexType     InputSComplex;
     typedef boost::shared_ptr<InputSComplex>        InputSComplexPtr;
-    typedef typename Traits::OutputSComplexType     OutputSComplex;
     typedef typename Traits::ScalarType             Scalar;
     typedef typename Traits::IntType                Int;
 

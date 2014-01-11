@@ -14,7 +14,8 @@ int main(int argc, char** argv)
 {
     Logger::Begin(Logger::Output, "computing for cubes");
     //FundGroup<CollapsedAKQReducedCubSComplexSupplier<CubicalHomology<3> > > G("cubes_c.txt");
-    FundGroup<CollapsedAKQReducedCubSComplexSupplier<CubicalHomology<3> > > G("bitmap_c_3_1.hap");
+    //FundGroup<CollapsedAKQReducedCubSComplexSupplier<CubicalHomology<3> > > G("bitmap_c_3_1.hap");
+    FundGroup<AKQReducedSComplexSupplier<CubicalHomology<3> > > G("cubes_c.txt");
     Logger::Log(Logger::Output)<<G<<std::endl;
     Logger::End();
 

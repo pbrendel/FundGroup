@@ -10,49 +10,44 @@
 #include <redHom/complex/cubical/CubSComplex.hpp>
 #include <redHom/complex/simplicial/SimplexSComplex.hpp>
 
-template <int D>
-class CubicalHomology
+class DefaultHomologyTraits
 {
 public:
 
-    typedef CubSComplex<D>                                  InputSComplexType;
-    typedef SComplex<SComplexDefaultTraits>                 OutputSComplexType;
-    typedef typename OutputSComplexType::Cell               CellType;
-    typedef double                                          ScalarType;
-    typedef int                                             IntType;
-    typedef ChainT<ChainContainer<CellType, ScalarType> >   ChainType;
-    typedef typename InputSComplexType::BCubSet             CubSetType;
+    typedef double                              ScalarType;
+    typedef int                                 IntType;
+    typedef SComplex<SComplexDefaultTraits>     GeneralSComplexType;
+};
+
+template <int D>
+class CubicalHomology : public DefaultHomologyTraits
+{
+public:
+
+    typedef CubSComplex<D>                                  SComplexType;
+    typedef typename SComplexType::BCubSet                  CubSetType;
     typedef CRef<CubSetType>                                CubSetPtrType;
-    typedef typename InputSComplexType::BCubCellSet         CubCellSetType;
+    typedef typename SComplexType::BCubCellSet              CubCellSetType;
     typedef CRef<CubCellSetType>                            CubCellSetPtrType;
-    typedef size_t                                          CoordType;
+    typedef size_t                                          CubCoordType;
     enum
     {
         DIM = D,
     };
 };
 
-class SimplicialHomology
+class SimplicialHomology : public DefaultHomologyTraits
 {
 public:
 
-    typedef SimplexSComplex                                 InputSComplexType;
-    typedef SComplex<SComplexDefaultTraits>                 OutputSComplexType;
-    typedef typename OutputSComplexType::Cell               CellType;
-    typedef double                                          ScalarType;
-    typedef ChainT<ChainContainer<CellType, ScalarType> >   ChainType;
+    typedef SimplexSComplex                                 SComplexType;
 };
 
-class SComplexHomology
+class SComplexHomology : public DefaultHomologyTraits
 {
 public:
 
-    typedef SComplex<SComplexDefaultTraits>                 InputSComplexType;
-    typedef SComplex<SComplexDefaultTraits>                 OutputSComplexType;
-    typedef typename OutputSComplexType::Cell               CellType;
-    typedef double                                          ScalarType;
-    typedef ChainT<ChainContainer<CellType, ScalarType> >   ChainType;
-
+    typedef SComplex<SComplexDefaultTraits>                 SComplexType;
 };
 
 #endif	/* HOMOLOGYTRAITS_HPP */

@@ -17,6 +17,7 @@ public:
 
     enum Level
     {
+        None,
         Output,
         Details,
         Debug,

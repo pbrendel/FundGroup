@@ -17,9 +17,14 @@
 template <typename Traits>
 class AKQReducedSComplexSupplier
 {
-    typedef typename Traits::InputSComplexType  InputSComplex;
+public:
+
+    typedef typename Traits::SComplexType       InputSComplex;
+    typedef typename Traits::GeneralSComplexType OutputSComplex;
+
+private:
+
     typedef boost::shared_ptr<InputSComplex>    InputSComplexPtr;
-    typedef typename Traits::OutputSComplexType OutputSComplex;
     typedef typename Traits::ScalarType         Scalar;
     typedef typename Traits::IntType            Int;
 
@@ -37,7 +42,7 @@ public:
     typedef typename OutputSComplex::Cell       Cell;
     typedef std::set<Cell>                      Cells;
     typedef std::vector<Cells>                  CellsByDim;
-    typedef typename Traits::ChainType          Chain;
+    typedef std::vector<std::pair<Cell, int> >  Chain;
 
     AKQReducedSComplexSupplier(const char* filename);
     AKQReducedSComplexSupplier(DebugComplexType type);

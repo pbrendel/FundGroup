@@ -23,23 +23,23 @@ AKQHomotopicPaths<Traits>::AKQHomotopicPaths(Strategy* strategy)
 template <typename Traits>
 void AKQHomotopicPaths<Traits>::ComputeAcesMap()
 {
-    CellId id = 0;
-    BOOST_FOREACH(Cell ace, _strategy->aces)
+    OutputCellId id = OutputCellId(0);
+    BOOST_FOREACH(InputCell ace, _strategy->aces)
     {
-        _acesMap.insert(AcesMap::value_type(ace.getId(), id++));
+        _acesMap.insert(typename AcesMap::value_type(ace.getId(), id++));
     }
 }
 
 #define LOG Logger::Log(Logger::Debug)
 
 template <typename Traits>
-typename AKQHomotopicPaths<Traits>::Chain
-AKQHomotopicPaths<Traits>::GetHomotopicBoundary(const Cell& cell)
+typename AKQHomotopicPaths<Traits>::OutputChain
+AKQHomotopicPaths<Traits>::GetHomotopicBoundary(const OutputCell& cell)
 {
     // cell needs to be an ace
     assert(_acesMap.right.find(cell.getId()) != _acesMap.right.end());
     // we get an original cell
-    Cell originalCell = (*_originalComplex)[_acesMap.right.at(cell.getId())];
+    InputCell originalCell = (*_originalComplex)[_acesMap.right.at(cell.getId())];
     assert(_strategy->akq[originalCell.getId()] == Strategy::ACE);
 
     //LOG<<"cell id: "<<cell.getId()<<" original id: "<<originalCell.getId()<<std::endl;
@@ -62,16 +62,17 @@ AKQHomotopicPaths<Traits>::GetHomotopicBoundary(const Cell& cell)
     GetHomotopicPath(bdPath, homotopicPath);
 
     // finally we need to map original complex cells' ids to the output complex cells' ids
-    Chain boundary;
+    OutputChain boundary;
     for (typename Path::iterator jt = homotopicPath.begin(); jt != homotopicPath.end(); ++jt)
     {
         // only ACES can be present in the final homotopic path
         assert(_strategy->akq[jt->first] == Strategy::ACE);
         assert(_acesMap.left.find(jt->first) != _acesMap.left.end());
-        Cell ace = (*_outputComplex)[_acesMap.left.at(jt->first)];
-        int ci = _outputComplex->coincidenceIndex(cell, ace);
+        OutputCell ace = (*_outputComplex)[_acesMap.left.at(jt->first)];
+        int ci = jt->second;//_outputComplex->coincidenceIndex(cell, ace);
         assert(ci != 0);
-        boundary.push_back(std::pair<Cell, int>(ace, ci));
+        boundary.push_back(std::pair<OutputCell, int>(ace, ci));
+        //LOG<<"old: "<<jt->second<<" new: "<<ci<<std::endl;
     }
     return boundary;
 }
@@ -157,7 +158,7 @@ void AKQHomotopicPaths<Traits>::GetHomotopicPath(const PathCell& cell, Path& out
 
 template <typename Traits>
 typename AKQHomotopicPaths<Traits>::PathsMapIterator
-AKQHomotopicPaths<Traits>::GetQueenHomotopicPath(CellId cellId)
+AKQHomotopicPaths<Traits>::GetQueenHomotopicPath(InputCellId cellId)
 {
     // we can only compute homotopic path for QUEEN cell
     assert(_strategy->akq[cellId] == Strategy::QUEEN);
@@ -170,7 +171,7 @@ AKQHomotopicPaths<Traits>::GetQueenHomotopicPath(CellId cellId)
     }
 
     // first we need to take KING cell
-    Cell* kingCell = _strategy->kerKing[cellId];
+    InputCell* kingCell = _strategy->kerKing[cellId];
 
     Path prevCells;
     Path nextCells;

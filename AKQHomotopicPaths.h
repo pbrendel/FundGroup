@@ -15,34 +15,37 @@
 template <typename Traits>
 class AKQHomotopicPaths
 {
-    typedef typename Traits::OutputSComplexType InputSComplex;
-    typedef typename Traits::OutputSComplexType OutputSComplex;
+    typedef typename Traits::InputSComplex      InputSComplex;
+    typedef typename Traits::OutputSComplex     OutputSComplex;
 
 public:
 
     typedef AKQReduceStrategy<InputSComplex>    Strategy;
-    typedef typename OutputSComplex::Cell       Cell;
-    typedef std::vector<std::pair<Cell, int> >  Chain;
+    typedef typename OutputSComplex::Cell       OutputCell;
+    typedef std::vector<std::pair<OutputCell, int> > OutputChain;
 
     AKQHomotopicPaths(Strategy *strategy);
 
-    Chain GetHomotopicBoundary(const Cell& cell);
+    OutputChain GetHomotopicBoundary(const OutputCell& cell);
 
 private:
 
     typedef typename Strategy::AKQType                  AKQType;
-    typedef size_t                                      CellId;
-    typedef std::pair<CellId, int>                      PathCell;
+    typedef typename InputSComplex::Cell                InputCell;
+    typedef std::vector<std::pair<InputCell, int> >     InputChain;
+    typedef typename InputSComplex::Id                  InputCellId;
+    typedef typename OutputSComplex::Id                 OutputCellId;
+    typedef std::pair<InputCellId, int>                 PathCell;
     typedef std::list<PathCell>                         Path;
-    typedef std::map<CellId, Path>                      PathsMap;
+    typedef std::map<InputCellId, Path>                 PathsMap;
     typedef typename PathsMap::iterator                 PathsMapIterator;
-    typedef boost::bimap<CellId, CellId>                AcesMap;
+    typedef boost::bimap<InputCellId, OutputCellId>     AcesMap;
     typedef typename InputSComplex::Iterators::BdCells  BdCells;
 
     void ComputeAcesMap();
     void GetHomotopicPath(const Path& path, Path& outPath);
     void GetHomotopicPath(const PathCell& cell, Path& outPath);
-    PathsMapIterator GetQueenHomotopicPath(CellId cellId);
+    PathsMapIterator GetQueenHomotopicPath(InputCellId cellId);
     void ReverseNegate(const Path& path, Path& outPath);
     void Negate(Path& path);
 

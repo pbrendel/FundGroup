@@ -10,7 +10,6 @@
 
 #include "AKQHomotopicPaths.h"
 #include "CubSetFactory.h"
-#include "HomologyHelpers.h"
 #include "SComplexFactory.h"
 
 #include "Logger.h"
@@ -115,7 +114,7 @@ bool CollapsedAKQReducedCubSComplexSupplier<Traits>::GetCells(CellsByDim& cellsB
     }
 
     // if there are some 2-cells, take its (homotopic) boundaries
-    AKQHomotopicPaths<Traits> homotopicPaths(_algorithm->getStrategy());
+    AKQHomotopicPaths<CollapsedAKQReducedCubSComplexSupplier<Traits> > homotopicPaths(_algorithm->getStrategy());
     _2Boundaries.clear();
     if (cellsByDim.size() > 2)
     {

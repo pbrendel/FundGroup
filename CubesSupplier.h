@@ -48,6 +48,9 @@ private:
     static void FillSkeleton(Cubes& cubes, Bounds& bounds);
     static void FillCustom0(Cubes& cubes, Bounds& bounds);
 
+    static void CreateComplement(Cubes& cubesIn, Bounds& boundsIn,
+                                 Cubes& cubesOut, Bounds& boundsOut);
+
     enum FileType
     {
         FT_FullCubes,

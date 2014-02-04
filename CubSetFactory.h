@@ -16,7 +16,7 @@ public:
     typedef CubSetT                     CubSet;
     typedef CRef<CubSet>                CubSetPtr;
     typedef typename CubSet::EuclSet    EuclSet;
-    typedef size_t                      Coord;
+    typedef int                         Coord;
     enum
     {
         DIM = CubSet::DIM,

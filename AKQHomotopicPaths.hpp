@@ -30,8 +30,6 @@ void AKQHomotopicPaths<Traits>::ComputeAcesMap()
     }
 }
 
-#define LOG Logger::Log(Logger::Debug)
-
 template <typename Traits>
 typename AKQHomotopicPaths<Traits>::OutputChain
 AKQHomotopicPaths<Traits>::GetHomotopicBoundary(const OutputCell& cell)
@@ -42,24 +40,25 @@ AKQHomotopicPaths<Traits>::GetHomotopicBoundary(const OutputCell& cell)
     InputCell originalCell = (*_originalComplex)[_acesMap.right.at(cell.getId())];
     assert(_strategy->akq[originalCell.getId()] == Strategy::ACE);
 
-    //LOG<<"cell id: "<<cell.getId()<<" original id: "<<originalCell.getId()<<std::endl;
-
     // we take its boundary cells
     BdCells bdCells = _originalComplex->iterators().bdCells(originalCell);
     typename BdCells::iterator it = bdCells.begin();
     typename BdCells::iterator itEnd = bdCells.end();
     Path bdPath;
-    //LOG<<"its boundary:"<<std::endl;
     for ( ; it != itEnd; ++it)
     {
-        //LOG<<it->getId()<<std::endl;
         int ci = _originalComplex->coincidenceIndex(originalCell, *it);
         assert(ci != 0);
         bdPath.push_back(PathCell(it->getId(), ci));
     }
 
     Path homotopicPath;
-    GetHomotopicPath(bdPath, homotopicPath);
+    for (typename Path::iterator jt = bdPath.begin(); jt != bdPath.end(); ++jt)
+    {
+        Path tmpPath;
+        GetHomotopicPath(*jt, tmpPath);
+        homotopicPath.insert(homotopicPath.end(), tmpPath.begin(), tmpPath.end());
+    }
 
     // finally we need to map original complex cells' ids to the output complex cells' ids
     OutputChain boundary;
@@ -72,7 +71,6 @@ AKQHomotopicPaths<Traits>::GetHomotopicBoundary(const OutputCell& cell)
         int ci = jt->second;//_outputComplex->coincidenceIndex(cell, ace);
         assert(ci != 0);
         boundary.push_back(std::pair<OutputCell, int>(ace, ci));
-        //LOG<<"old: "<<jt->second<<" new: "<<ci<<std::endl;
     }
     return boundary;
 }
@@ -142,18 +140,13 @@ void AKQHomotopicPaths<Traits>::GetHomotopicPath(const PathCell& cell, Path& out
         assert(it != _queenPaths.end());
         if (cell.second > 0)
         {
-            outPath = it->second;
+            outPath.assign(it->second.begin(), it->second.end());
         }
         else
         {
             ReverseNegate(it->second, outPath);
         }
     }
-//        LOG<<"path for cell "<<cell.first<<" ("<<type<<") is:"<<std::endl;
-//        for ( typename TBdList::iterator pIt = outPath.begin(); pIt != outPath.end(); pIt++)
-//        {
-//            LOG<<pIt->first<<std::endl;
-//        }
 }
 
 template <typename Traits>
@@ -183,10 +176,6 @@ AKQHomotopicPaths<Traits>::GetQueenHomotopicPath(InputCellId cellId)
     BdCells bdCells = _originalComplex->iterators().bdCells(*kingCell);
     typename BdCells::iterator it = bdCells.begin();
     typename BdCells::iterator itEnd = bdCells.end();
-
-    //LOG<<"computing alternative path for queen "<<cellId<<" and king "<<kingCell->getId()<<std::endl;
-    //LOG<<"king boundary size is not null "<<(it != itEnd)<<std::endl;
-
     for ( ; it != itEnd; ++it)
     {
         int ci = _originalComplex->coincidenceIndex(*kingCell, *it);
@@ -198,11 +187,7 @@ AKQHomotopicPaths<Traits>::GetQueenHomotopicPath(InputCellId cellId)
         }
         else
         {
-            //LOG<<"adding to current cells: "<<it->getId()<<std::endl;
             currentCells->push_back(std::make_pair(it->getId(), ci));
-            //LOG<<"current cells size: "<<currentCells->size();
-            //LOG<<"prev cells size: "<<prevCells.size()<<std::endl;
-            //LOG<<"next cells size: "<<nextCells.size()<<std::endl;
         }
     }
     assert(orientation != 0);
@@ -211,22 +196,17 @@ AKQHomotopicPaths<Traits>::GetQueenHomotopicPath(InputCellId cellId)
     Path bdPath;
     if (orientation > 0)
     {
-        Negate(prevCells);
-        Negate(nextCells);
-        bdPath.insert(bdPath.end(), prevCells.begin(), prevCells.end());
-        bdPath.insert(bdPath.end(), nextCells.begin(), nextCells.end());
+        Path tmp;
+        ReverseNegate(prevCells, tmp);
+        bdPath.insert(bdPath.end(), tmp.begin(), tmp.end());
+        ReverseNegate(nextCells, tmp);
+        bdPath.insert(bdPath.end(), tmp.begin(), tmp.end());
     }
     else
     {
         bdPath.insert(bdPath.end(), nextCells.begin(), nextCells.end());
         bdPath.insert(bdPath.end(), prevCells.begin(), prevCells.end());
     }
-
-//        LOG<<"alternative path is:"<<std::endl;
-//        for (typename Path::iterator pIt = bdPath.begin(); pIt != bdPath.end(); ++pIt)
-//        {
-//            LOG<<pIt->first<<std::endl;
-//        }
 
     // finally we need to compute homotopic paths for every cell on path
     Path homotopicPath;
@@ -257,8 +237,6 @@ void AKQHomotopicPaths<Traits>::Negate(Path& path)
         it->second = -it->second;
     }
 }
-
-#undef LOG
 
 #endif	/* AKQHOMOTOPICPATHS_HPP */
 

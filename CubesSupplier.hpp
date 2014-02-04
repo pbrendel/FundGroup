@@ -226,7 +226,7 @@ void CubesSupplier<T, DIM>::FillSphere2(Cubes& cubes, Bounds& bounds)
                 continue;
             }
             cube[1] = j;
-            for (Coord k = 0; k < 3; k++)
+            for (Coord k = 1; k < 2; k++)
             {
                 cube[2] = k;
                 cubes.push_back(cube);
@@ -303,7 +303,51 @@ void CubesSupplier<T, DIM>::FillSkeleton(Cubes& cubes, Bounds& bounds)
 template <typename T, int DIM>
 void CubesSupplier<T, DIM>::FillCustom0(Cubes& cubes, Bounds& bounds)
 {
-    throw std::logic_error("not implemented");
+    Cubes cubesTmp;
+    Bounds boundsTmp;
+    FillSphere2(cubesTmp, boundsTmp);
+    CreateComplement(cubesTmp, boundsTmp, cubes, bounds);
+}
+
+template <typename T, int DIM>
+void CubesSupplier<T, DIM>::CreateComplement(Cubes& cubesIn, Bounds& boundsIn,
+                                             Cubes& cubesOut, Bounds& boundsOut)
+{
+    assert(boundsIn.size() == DIM);
+    std::vector<T> coords(boundsIn.size());
+    boundsOut.resize(boundsIn.size());
+    size_t totalCount = 1;
+    for (size_t i = 0; i < boundsIn.size(); i++)
+    {
+        boundsOut[i] = Bound(boundsIn[i]._min - 1, boundsIn[i]._max + 1);
+        totalCount *= boundsOut[i].Size();
+        coords[i] = boundsOut[i]._min;
+    }
+    cubesOut.clear();
+    for (size_t i = 0; i < totalCount; i++)
+    {
+        // if cube is not found in the original set -> add it to its complement
+        if (std::find(cubesIn.begin(), cubesIn.end(), coords) == cubesIn.end())
+        {
+            cubesOut.push_back(coords);
+        }
+        // increment coord
+        size_t dim = 0;
+        bool ok = false;
+        while (!ok && dim < boundsOut.size())
+        {
+            coords[dim]++;
+            if (coords[dim] <= boundsOut[dim]._max)
+            {
+                ok = true;
+            }
+            else
+            {
+                coords[dim] = boundsOut[dim]._min;
+                dim++;
+            }
+        }
+    }
 }
 
 template <typename T, int DIM>

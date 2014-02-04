@@ -4,6 +4,7 @@
  */
 
 #include "AKQReducedSComplexSupplier.h"
+#include "NotReducedSComplexSupplier.h"
 #include "CollapsedAKQReducedCubSComplexSupplier.h"
 #include "FundGroup.h"
 #include "HomologyTraits.h"
@@ -13,9 +14,7 @@
 int main(int argc, char** argv)
 {
     Logger::Begin(Logger::Output, "computing for cubes");
-    //FundGroup<CollapsedAKQReducedCubSComplexSupplier<CubicalHomology<3> > > G("cubes_c.txt");
-    //FundGroup<CollapsedAKQReducedCubSComplexSupplier<CubicalHomology<3> > > G("bitmap_c_3_1.hap");
-    FundGroup<AKQReducedSComplexSupplier<CubicalHomology<3> > > G("cubes_c.txt");
+    FundGroup<AKQReducedSComplexSupplier<CubicalHomology<3> > > G("bitmap_c.hap");
     Logger::Log(Logger::Output)<<G<<std::endl;
     Logger::End();
 

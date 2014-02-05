@@ -13,6 +13,8 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
+#include "FGLogger.h"
+
 template <typename ComplexSupplierType>
 class FundGroup
 {
@@ -22,7 +24,7 @@ public:
     FundGroup(const char *filename);
     FundGroup(DebugComplexType debugComplexType);
 
-    friend std::ostream& operator<<(std::ostream &str, FundGroup g)
+    friend std::ostream& operator<<(std::ostream &str, FundGroup& g)
     {
         str<<g.ToString();
         return str;
@@ -45,6 +47,7 @@ private:
     std::map<Cell, Chain>   _2Boundaries;
     Cells                   _spanningTreeEdges;
     Relators                _relators;
+    FGLogger                _logger;
 
     void Compute();
     void CreateSpanningTree();

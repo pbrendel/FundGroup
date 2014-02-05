@@ -8,8 +8,6 @@
 
 #include "AKQHomotopicPaths.h"
 
-#include "Logger.h"
-
 template <typename Traits>
 AKQHomotopicPaths<Traits>::AKQHomotopicPaths(Strategy* strategy)
     : _strategy(strategy)

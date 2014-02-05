@@ -15,11 +15,10 @@ public:
 
     typedef CubSetT                     CubSet;
     typedef CRef<CubSet>                CubSetPtr;
-    typedef typename CubSet::EuclSet    EuclSet;
     typedef int                         Coord;
     enum
     {
-        DIM = CubSet::DIM,
+        DIM = CubSet::theDim,
     };
 
     static CubSetPtr Load(const char* filename, bool shave);

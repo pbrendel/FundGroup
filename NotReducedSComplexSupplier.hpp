@@ -10,8 +10,6 @@
 
 #include "SComplexFactory.h"
 
-#include "Logger.h"
-
 template <typename Traits>
 NotReducedSComplexSupplier<Traits>::NotReducedSComplexSupplier(const char* filename)
 {

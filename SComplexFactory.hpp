@@ -13,7 +13,7 @@
 #include "KappaMapSupplier.h"
 #include "SimplicesSupplier.h"
 
-#include "Logger.h"
+#include "FGLogger.h"
 
 template <int DIM>
 typename SComplexFactory<CubSComplex<DIM> >::SComplexPtr
@@ -39,9 +39,10 @@ template <int DIM>
 typename SComplexFactory<CubSComplex<DIM> >::SComplexPtr
 SComplexFactory<CubSComplex<DIM> >::Create(CubCellSetPtr cubCellSet)
 {
-    Logger::Begin(Logger::Details, "creating SComplex");
+    FGLogger logger;
+    logger.Begin(FGLogger::Details, "creating SComplex");
     SComplexPtr complex = SComplexPtr(new SComplexType(cubCellSet));
-    Logger::End();
+    logger.End();
 
     return complex;
 }
@@ -50,13 +51,14 @@ template <int DIM>
 typename SComplexFactory<CubSComplex<DIM> >::SComplexPtr
 SComplexFactory<CubSComplex<DIM> >::Create(CubSetPtr cubSet)
 {
-    Logger::Begin(Logger::Details, "creating CubCellSet");
+    FGLogger logger;
+    logger.Begin(FGLogger::Details, "creating CubCellSet");
     CubCellSetPtr cubCellSet = CubCellSetPtr(new CubCellSet(cubSet()));
-    Logger::End();
+    logger.End();
 
-    Logger::Begin(Logger::Details, "creating SComplex");
+    logger.Begin(FGLogger::Details, "creating SComplex");
     SComplexPtr complex = SComplexPtr(new SComplexType(cubCellSet));
-    Logger::End();
+    logger.End();
 
     return complex;
 }

@@ -13,8 +13,6 @@
 #include <sstream>
 #include <vector>
 
-#include "Logger.h"
-
 template <typename ComplexSupplierType>
 FundGroup<ComplexSupplierType>::FundGroup(const char *filename)
 {
@@ -32,18 +30,18 @@ FundGroup<ComplexSupplierType>::FundGroup(DebugComplexType debugComplexType)
 template <typename ComplexSupplierType>
 void FundGroup<ComplexSupplierType>::Compute()
 {
-    Logger::Begin(Logger::Details, "getting cells data");
+    _logger.Begin(FGLogger::Details, "getting cells data");
     _complexSupplier->GetCells(_cellsByDim, _2Boundaries);
-    Logger::End();
+    _logger.End();
     if (_cellsByDim[0].size() > 1)
     {
-        Logger::Begin(Logger::Details, "creating spanning tree");
+        _logger.Begin(FGLogger::Details, "creating spanning tree");
         CreateSpanningTree();
-        Logger::End();
+        _logger.End();
     }
-    Logger::Begin(Logger::Details, "computing relators");
+    _logger.Begin(FGLogger::Details, "computing relators");
     ComputeRelators();
-    Logger::End();
+    _logger.End();
     PrintDebug();
 }
 
@@ -93,7 +91,7 @@ void FundGroup<ComplexSupplierType>::CreateSpanningTree()
             }
             else
             {
-                Logger::Log(Logger::Assert)<<"boundary.size =  "<<boundary.size()<<std::endl;
+                _logger.Log(FGLogger::Assert)<<"boundary.size =  "<<boundary.size()<<std::endl;
                 assert(false);
             }
         }
@@ -204,25 +202,25 @@ void FundGroup<ComplexSupplierType>::PrintDebug()
 {
     _complexSupplier->PrintDebug();
 
-    Logger::Log(Logger::Debug)<<"cells:"<<std::endl;
+    _logger.Log(FGLogger::Debug)<<"cells:"<<std::endl;
     for (int i = 0; i < _cellsByDim.size(); i++)
     {
-        Logger::Log(Logger::Debug)<<"dim: "<<i<<std::endl;
+        _logger.Log(FGLogger::Debug)<<"dim: "<<i<<std::endl;
         for (typename Cells::iterator it = _cellsByDim[i].begin(); it != _cellsByDim[i].end(); ++it)
         {
-            Logger::Log(Logger::Debug)<<*it<<std::endl;
+            _logger.Log(FGLogger::Debug)<<*it<<std::endl;
         }
     }
 
-    Logger::Log(Logger::Debug)<<"homotopic 2 boundaries:"<<std::endl;
+    _logger.Log(FGLogger::Debug)<<"homotopic 2 boundaries:"<<std::endl;
     for (typename std::map<Cell, Chain>::iterator it = _2Boundaries.begin();
                                                   it != _2Boundaries.end();
                                                   ++it)
     {
-        Logger::Log(Logger::Debug)<<"cell: "<<it->first<<std::endl;
+        _logger.Log(FGLogger::Debug)<<"cell: "<<it->first<<std::endl;
         for (typename Chain::iterator jt = it->second.begin(); jt != it->second.end(); ++jt)
         {
-            Logger::Log(Logger::Debug)<<jt->first<<" "<<jt->second<<std::endl;
+            _logger.Log(FGLogger::Debug)<<jt->first<<" "<<jt->second<<std::endl;
         }
     }
 }

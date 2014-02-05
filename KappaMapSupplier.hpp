@@ -10,7 +10,7 @@
 
 #include <fstream>
 
-#include "Logger.h"
+#include "FGLogger.h"
 
 template <typename IdT, typename IndexT, typename DimT>
 void KappaMapSupplier<IdT, IndexT, DimT>::Load(const char* filename,
@@ -29,14 +29,15 @@ void KappaMapSupplier<IdT, IndexT, DimT>::Load(const char* filename,
     size_t totalCellsCount = 0;
     size_t kappaMapSize = 0;
 
-    Logger::Begin(Logger::Details, "reading kappa map");
+    FGLogger logger;
+    logger.Begin(FGLogger::Details, "reading kappa map");
     input>>topDim;
-    Logger::Log(Logger::Details)<<"top dim: "<<topDim<<std::endl;
+    logger.Log(FGLogger::Details)<<"top dim: "<<topDim<<std::endl;
     for (int dim = 0; dim <= topDim; dim++)
     {
         int cellsCount = 0;
         input>>cellsCount;
-        Logger::Log(Logger::Details)<<cellsCount<<" cells in dim "<<dim<<std::endl;
+        logger.Log(FGLogger::Details)<<cellsCount<<" cells in dim "<<dim<<std::endl;
         totalCellsCount += cellsCount;
         for (int i = 0; i < cellsCount; i++)
         {
@@ -45,7 +46,7 @@ void KappaMapSupplier<IdT, IndexT, DimT>::Load(const char* filename,
         // for every cell there is 2 boundary cells in each dimension
         kappaMapSize += dim * cellsCount * 2;
     }
-    Logger::Log(Logger::Details)<<"total cells count = "<<totalCellsCount<<std::endl;
+    logger.Log(FGLogger::Details)<<"total cells count = "<<totalCellsCount<<std::endl;
 
     for (int i = 0; i < kappaMapSize; i++)
     {
@@ -60,7 +61,7 @@ void KappaMapSupplier<IdT, IndexT, DimT>::Load(const char* filename,
                                          static_cast<Index>(index)));
     }
     input.close();
-    Logger::End("data read successfully");
+    logger.End("data read successfully");
 }
 
 template <typename IdT, typename IndexT, typename DimT>

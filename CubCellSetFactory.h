@@ -15,11 +15,10 @@ public:
 
     typedef CubCellSetT                     CubCellSet;
     typedef CRef<CubCellSet>                CubCellSetPtr;
-    typedef typename CubCellSet::EuclSet    EuclSet;
     typedef size_t                          Coord;
     enum
     {
-        DIM = CubCellSet::DIM,
+        DIM = CubCellSet::theDim,
     };
 
     static CubCellSetPtr Load(const char* filename, bool shave);

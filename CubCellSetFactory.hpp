@@ -12,6 +12,8 @@
 #include <capd/bitSet/EuclBitSetT.hpp>
 #include <capd/repSet/ECellMDCodeT.h>
 
+#include "FGLogger.h"
+
 template <typename CubCellSetT>
 typename CubCellSetFactory<CubCellSetT>::CubCellSetPtr
 CubCellSetFactory<CubCellSetT>::Load(const char* filename, bool shave)
@@ -36,12 +38,13 @@ template <typename CubCellSetT>
 typename CubCellSetFactory<CubCellSetT>::CubCellSetPtr
 CubCellSetFactory<CubCellSetT>::Create(Cubes& cubes, Bounds& bounds, bool shave)
 {
+    FGLogger logger;
     // recalculating into RedHom CubCellSet internal format
-    Logger::Begin(Logger::Details, "Creating CubCellSet");
+    logger.Begin(FGLogger::Details, "Creating CubCellSet");
     std::vector<int> cubCellSetBounds(DIM);
     for (int i = 0; i < DIM; i++)
     {
-        Logger::Log(Logger::Debug)<<bounds[i].Size()<<std::endl;
+        logger.Log(FGLogger::Debug)<<bounds[i].Size()<<std::endl;
         cubCellSetBounds[i] = 2 * bounds[i].Size() + 1;
     }
     CubCellSetPtr cubCellSet = CubCellSetPtr(new CubCellSet(&cubCellSetBounds[0], true));
@@ -59,21 +62,21 @@ CubCellSetFactory<CubCellSetT>::Create(Cubes& cubes, Bounds& bounds, bool shave)
         }
         cubCellSet().insert(&cube[0]);
     }
-    Logger::End();
+    logger.End();
 
-    Logger::Begin(Logger::Details, "creating lower dimensional cubes");
+    logger.Begin(FGLogger::Details, "creating lower dimensional cubes");
     cubCellSet().fillWithSubEmbDimCells();
-    Logger::End();
+    logger.End();
 
     if (shave)
     {
-        Logger::Begin(Logger::Details, "shaving");
+        logger.Begin(FGLogger::Details, "shaving");
         count = static_cast<size_t>(cubCellSet().shave());
-        if (Logger::PrintShavedCellsCount())
+        if (logger.PrintShavedCellsCount())
         {
-            Logger::Log(Logger::Details)<<"shaved "<<count<<" cubes"<<std::endl;
+            logger.Log(FGLogger::Details)<<"shaved "<<count<<" cubes"<<std::endl;
         }
-        Logger::End();
+        logger.End();
     }
 
     return cubCellSet;

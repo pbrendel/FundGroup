@@ -14,6 +14,7 @@
 #include <redHom/complex/scomplex/SComplex.hpp>
 
 #include "DebugComplexType.h"
+#include "FGLogger.h"
 
 template <typename Traits>
 class CollapsedAKQReducedCubSComplexSupplier
@@ -76,6 +77,7 @@ private:
 
     InputSComplexPtr    _complex;
     AlgorithmPtr        _algorithm;
+    FGLogger            _logger;
 
     typedef typename CubCellSet::BitCoordIterator   BitCoordIterator;
     typedef typename CubCellSet::PointCoordIterator PointCoordIterator;

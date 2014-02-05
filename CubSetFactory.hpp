@@ -12,6 +12,8 @@
 #include <capd/cubSet/acyclicConfigs.hpp>
 #include <capd/bitSet/EuclBitSetT.hpp>
 
+#include "FGLogger.h"
+
 template <typename CubSetT>
 typename CubSetFactory<CubSetT>::CubSetPtr
 CubSetFactory<CubSetT>::Load(const char* filename, bool shave)
@@ -36,12 +38,13 @@ template <typename CubSetT>
 typename CubSetFactory<CubSetT>::CubSetPtr
 CubSetFactory<CubSetT>::Create(Cubes& cubes, Bounds& bounds, bool shave)
 {
-   // recalculating into RedHom CubSet internal format
-    Logger::Begin(Logger::Details, "Creating CubSet");
+    FGLogger logger;
+    // recalculating into RedHom CubSet internal format
+    logger.Begin(FGLogger::Details, "Creating CubSet");
     std::vector<int> cubSetBounds(DIM);
     for (int i = 0; i < DIM; i++)
     {
-        Logger::Log(Logger::Debug)<<bounds[i].Size()<<std::endl;
+        logger.Log(FGLogger::Debug)<<bounds[i].Size()<<std::endl;
         cubSetBounds[i] = bounds[i].Size();
     }
 
@@ -61,21 +64,21 @@ CubSetFactory<CubSetT>::Create(Cubes& cubes, Bounds& bounds, bool shave)
         cubSet().insert(&cube[0]);
     }
     cubSet().addEmptyCollar();
-    Logger::End();
+    logger.End();
 
     if (shave)
     {
-        Logger::Begin(Logger::Details, "loading acyclic configs");
+        logger.Begin(FGLogger::Details, "loading acyclic configs");
         readAcyclicConfigs();
-        Logger::End();
-        Logger::Begin(Logger::Details, "shaving");
+        logger.End();
+        logger.Begin(FGLogger::Details, "shaving");
         cubSet().shaveBI();
-        if (Logger::PrintShavedCellsCount())
+        if (logger.PrintShavedCellsCount())
         {
             count = count - static_cast<size_t>(cubSet().cardinality());
-            Logger::Log(Logger::Details)<<"shaved "<<count<<" cubes"<<std::endl;
+            logger.Log(FGLogger::Details)<<"shaved "<<count<<" cubes"<<std::endl;
         }
-        Logger::End();
+        logger.End();
     }
 
     return cubSet;

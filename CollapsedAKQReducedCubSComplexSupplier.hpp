@@ -12,9 +12,6 @@
 #include "CubSetFactory.h"
 #include "SComplexFactory.h"
 
-#include "Logger.h"
-#include "AKQHomotopicPaths.h"
-
 template <typename Traits>
 CollapsedAKQReducedCubSComplexSupplier<Traits>::CollapsedAKQReducedCubSComplexSupplier(const char* filename)
 {
@@ -34,7 +31,7 @@ CollapsedAKQReducedCubSComplexSupplier<Traits>::CollapsedAKQReducedCubSComplexSu
 template <typename Traits>
 void CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateComplex(CubSetPtr cubSet)
 {
-    Logger::Begin(Logger::Details, "computing acyclic subspace");
+    _logger.Begin(FGLogger::Details, "computing acyclic subspace");
 
     // acyclic subspace algorithm setup
     typedef typename CubSet::CubSetT_CubSetT_Ptr AccSubAlgorithm;
@@ -48,11 +45,11 @@ void CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateComplex(CubSetPtr cub
     // acyclic subset is being removed from the original set
     (cubSet().*accSubAlgorithm)(acyclicCubSubset);
 
-    Logger::End();
-    Logger::Log(Logger::Details)<<"computed acyclic subset size: "<<acyclicCubSubset.cardinality()<<std::endl;
-    Logger::Log(Logger::Details)<<"cubes left: "<<cubSet().cardinality()<<std::endl;
+    _logger.End();
+    _logger.Log(FGLogger::Details)<<"computed acyclic subset size: "<<acyclicCubSubset.cardinality()<<std::endl;
+    _logger.Log(FGLogger::Details)<<"cubes left: "<<cubSet().cardinality()<<std::endl;
 
-    Logger::Begin(Logger::Details, "computing acyclic subspace intersection with neighbourhood");
+    _logger.Begin(FGLogger::Details, "computing acyclic subspace intersection with neighbourhood");
     // creating wrap of "non-reduced"
     CubSet wrapped(cubSet());
     wrapped.wrap();
@@ -60,38 +57,38 @@ void CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateComplex(CubSetPtr cub
     acyclicCubSubset *= wrapped;
     // adding acyclic subspace to original set
     cubSet() += acyclicCubSubset;
-    Logger::End();
+    _logger.End();
 
-    Logger::Begin(Logger::Details, "constructing CubCellSet of the difference");
+    _logger.Begin(FGLogger::Details, "constructing CubCellSet of the difference");
     // constructing CubCellSets for each CubSet and computing the difference
     CubCellSetPtr cubCellSet(new CubCellSet(cubSet()));
     CubCellSet acyclicCubCellSubset(acyclicCubSubset);
     cubCellSet() -= acyclicCubCellSubset;
-    Logger::End();
+    _logger.End();
 
-    Logger::Begin(Logger::Details, "creating kappa-map for quotient space");
+    _logger.Begin(FGLogger::Details, "creating kappa-map for quotient space");
     Dims dims;
     KappaMap kappaMap;
     CreateKappaMapFromQuotient(cubCellSet, dims, kappaMap);
-    Logger::End();
+    _logger.End();
 
-    Logger::Begin(Logger::Details, "creating SComplex from kappa-map");
+    _logger.Begin(FGLogger::Details, "creating SComplex from kappa-map");
     _complex = SComplexFactory<InputSComplex>::Create(dims, kappaMap);
-    Logger::End();
+    _logger.End();
 }
 
 template <typename Traits>
 void CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateAlgorithm()
 {
-    Logger::Begin(Logger::Details, "performing coreductions");
+    _logger.Begin(FGLogger::Details, "performing coreductions");
     _algorithm = AlgorithmPtr(new Algorithm(new Strategy(*_complex)));
-    _algorithm->setStoreReducedCells(Logger::PrintCoreducedCellsCount());
+    _algorithm->setStoreReducedCells(_logger.PrintCoreducedCellsCount());
     (*_algorithm)();
-    Logger::End("coreductions finished");
-    if (Logger::PrintCoreducedCellsCount())
+    _logger.End("coreductions finished");
+    if (_logger.PrintCoreducedCellsCount())
     {
-        Logger::Log(Logger::Details)<<"number of reduced pairs: "<<_algorithm->getReducedCells().size()<<std::endl;
-        Logger::Log(Logger::Details)<<"number of extracted cells: "<<_algorithm->getExtractedCells().size()<<std::endl;
+        _logger.Log(FGLogger::Details)<<"number of reduced pairs: "<<_algorithm->getReducedCells().size()<<std::endl;
+        _logger.Log(FGLogger::Details)<<"number of extracted cells: "<<_algorithm->getExtractedCells().size()<<std::endl;
     }
 }
 
@@ -151,7 +148,7 @@ CollapsedAKQReducedCubSComplexSupplier<Traits>::GetBoundary(const Cell& cell)
 template <typename Traits>
 void CollapsedAKQReducedCubSComplexSupplier<Traits>::PrintDebug()
 {
-    Logger::Log(Logger::Debug)<<"homology signature:"<<std::endl<<_algorithm->getExtractedSignature()<<std::endl;
+    _logger.Log(FGLogger::Debug)<<"homology signature:"<<std::endl<<_algorithm->getExtractedSignature()<<std::endl;
 }
 
 template <typename Traits>
@@ -187,10 +184,10 @@ void CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateKappaMapFromQuotient(
             cellsIndicesOffsets[i] = cellsIndicesOffsets[i - 1] + _cellsCountByDim[i - 1];
         }
         totalCellsCount += _cellsCountByDim[i];
-        Logger::Log(Logger::Debug)<<_cellsCountByDim[i]<<" cells in dim "<<i;
-        Logger::Log(Logger::Debug)<<" with offset "<<cellsIndicesOffsets[i]<<std::endl;
+        _logger.Log(FGLogger::Debug)<<_cellsCountByDim[i]<<" cells in dim "<<i;
+        _logger.Log(FGLogger::Debug)<<" with offset "<<cellsIndicesOffsets[i]<<std::endl;
     }
-    Logger::Log(Logger::Debug)<<"total cells generated: "<<totalCellsCount<<std::endl;
+    _logger.Log(FGLogger::Debug)<<"total cells generated: "<<totalCellsCount<<std::endl;
 
     dims.resize(totalCellsCount);
     kappaMap.clear();

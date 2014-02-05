@@ -17,7 +17,7 @@
 #include <cstdio>
 #endif
 
-#include "Logger.h"
+#include "FGLogger.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -88,7 +88,8 @@ void CubesSupplier<T, DIM>::Load(const char* filename, Cubes& cubes, Bounds& bou
     bounds.clear();
     bounds.resize(DIM);
 
-    Logger::Begin(Logger::Details, "parsing data");
+    FGLogger logger;
+    logger.Begin(FGLogger::Details, "parsing data");
 
     FileType type = DetermineFileType(filename);
     switch (type)
@@ -106,8 +107,8 @@ void CubesSupplier<T, DIM>::Load(const char* filename, Cubes& cubes, Bounds& bou
 #else
     input.close();
 #endif
-    Logger::End();
-    Logger::Log(Logger::Details)<<"parsed "<<cubes.size()<<" cubes"<<std::endl;
+    logger.End();
+    logger.Log(FGLogger::Details)<<"parsed "<<cubes.size()<<" cubes"<<std::endl;
 }
 
 template <typename T, int DIM>
@@ -158,6 +159,8 @@ void CubesSupplier<T, DIM>::ParseFullCubes(std::istream& str, Cubes& cubes, Boun
         }
         if (cube.size() == DIM)
         {
+            //std::cout<<cubes.size()<<std::endl;
+            //assert(std::find(cubes.begin(), cubes.end(), cube) == cubes.end());
             cubes.push_back(cube);
         }
     }

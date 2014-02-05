@@ -13,6 +13,7 @@
 #include <redHom/algorithm/Coreduction.hpp>
 
 #include "DebugComplexType.h"
+#include "FGLogger.h"
 
 template <typename Traits>
 class AKQReducedSComplexSupplier
@@ -57,6 +58,7 @@ private:
 
     InputSComplexPtr    _complex;
     AlgorithmPtr        _algorithm;
+    FGLogger            _logger;
 };
 
 #include "AKQReducedSComplexSupplier.hpp"

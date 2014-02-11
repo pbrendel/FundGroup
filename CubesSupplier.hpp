@@ -159,8 +159,6 @@ void CubesSupplier<T, DIM>::ParseFullCubes(std::istream& str, Cubes& cubes, Boun
         }
         if (cube.size() == DIM)
         {
-            //std::cout<<cubes.size()<<std::endl;
-            //assert(std::find(cubes.begin(), cubes.end(), cube) == cubes.end());
             cubes.push_back(cube);
         }
     }

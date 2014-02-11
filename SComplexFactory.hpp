@@ -63,7 +63,7 @@ SComplexFactory<CubSComplex<DIM> >::Create(CubSetPtr cubSet)
     return complex;
 }
 
-typename SComplexFactory<SimplexSComplex>::SComplexPtr
+SComplexFactory<SimplexSComplex>::SComplexPtr
 SComplexFactory<SimplexSComplex>::Load(const char* filename)
 {
     Simplices simplices;
@@ -71,7 +71,7 @@ SComplexFactory<SimplexSComplex>::Load(const char* filename)
     return Create(simplices);
 }
 
-typename SComplexFactory<SimplexSComplex>::SComplexPtr
+SComplexFactory<SimplexSComplex>::SComplexPtr
 SComplexFactory<SimplexSComplex>::Create(DebugComplexType type)
 {
     Simplices simplices;
@@ -79,12 +79,12 @@ SComplexFactory<SimplexSComplex>::Create(DebugComplexType type)
     return Create(simplices);
 }
 
-typename SComplexFactory<SimplexSComplex>::SComplexPtr
+SComplexFactory<SimplexSComplex>::SComplexPtr
 SComplexFactory<SimplexSComplex>::Create(Simplices& simplices)
 {
     SComplexPtr complex = SComplexPtr(new SComplexType());
-    typename Simplices::iterator it = simplices.begin();
-    typename Simplices::iterator itEnd = simplices.end();
+    Simplices::iterator it = simplices.begin();
+    Simplices::iterator itEnd = simplices.end();
     for ( ; it != itEnd; ++it)
     {
         complex->addSimplex(*it);

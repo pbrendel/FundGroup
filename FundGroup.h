@@ -52,6 +52,7 @@ private:
     void Compute();
     void CreateSpanningTree();
     void ComputeRelators();
+    void SimplifyRelators();
     std::string ToString();
 
     void PrintDebug();

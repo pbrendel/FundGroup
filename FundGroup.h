@@ -30,6 +30,8 @@ public:
         return str;
     }
 
+    void ExportHapProgram(const char* filename);
+
 private:
 
     typedef ComplexSupplierType                         ComplexSupplier;

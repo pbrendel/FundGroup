@@ -1,0 +1,15 @@
+F:=FreeGroup(5);
+g:=GeneratorsOfGroup(F);
+rels:=[];
+w:=g[1]^-1*g[5]*g[3]^-1*g[2]^2*g[4]^-1*g[2]^-1*g[4]*g[2]^-1*g[5]^-1; Add(rels,w);
+w:=g[3]^-1*g[2]^2*g[4]^-1*g[2]^-1*g[4]*g[2]^-1*g[5]^-1*g[1]^-1*g[5]*g[4]^-1*g[5]^-1*g[2]*g[4]^-1*g[2]*g[4]*g[2]^-2*g[3]; Add(rels,w);
+w:=g[5]*g[5]^-1*g[2]*g[4]^-1; Add(rels,w);
+w:=g[5]*g[4]*g[5]^-1*g[3]^-1*g[2]; Add(rels,w);
+w:=g[5]^-1*g[3]*g[2]^-1*g[2]*g[4]^-1; Add(rels,w);
+G:=PresentationFpGroup(F/rels);
+SimplifyPresentation(G);
+P:=FpGroupPresentation(G);
+R:=RelatorsOfFpGroup(P);
+L:=LowIndexSubgroupsFpGroup(P,10);;
+K:=List(L,AbelianInvariants);;
+Sort(K);

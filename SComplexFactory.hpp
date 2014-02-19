@@ -6,6 +6,7 @@
 #ifndef SCOMPLEXFACTORY_HPP
 #define	SCOMPLEXFACTORY_HPP
 
+#include <redHom/complex/scomplex/SComplexReader.hpp>
 #include "SComplexFactory.h"
 
 #include "CubSetFactory.h"
@@ -96,20 +97,24 @@ template <typename Traits>
 typename SComplexFactory<SComplex<Traits> >::SComplexPtr
 SComplexFactory<SComplex<Traits> >::Load(const char* filename)
 {
-    Dims dims;
-    KappaMap kappaMap;
-    FileType fileType = DetermineFileType(filename);
-    switch (fileType)
-    {
-        case FT_KappaMap:
-            KappaMapSupplier<Id, int, Dim>::Load(filename, dims, kappaMap);
-            break;
-        case FT_Cubes:
-        case FT_Simplices:
-        default:
-            throw std::logic_error("not implemented");
-    }
-    return SComplexPtr(new SComplexType(3, dims, kappaMap, 1));
+    // Dims dims;
+    // KappaMap kappaMap;
+    // FileType fileType = DetermineFileType(filename);
+    // switch (fileType)
+    // {
+    //     case FT_KappaMap:
+    //         KappaMapSupplier<Id, int, Dim>::Load(filename, dims, kappaMap);
+    //         break;
+    //     case FT_Cubes:
+    //     case FT_Simplices:
+    //     default:
+    //         throw std::logic_error("not implemented");
+    // }
+    //return (new SComplexType(3, dims, kappaMap, 1));
+
+    SComplexReader<Traits> reader;
+    SComplexPtr complex = reader(filename, 3, 1);
+    return complex;
 }
 
 template <typename Traits>
@@ -162,4 +167,3 @@ SComplexFactory<SComplex<Traits> >::DetermineFileType(const char* filename)
 }
 
 #endif	/* SCOMPLEXFACTORY_HPP */
-

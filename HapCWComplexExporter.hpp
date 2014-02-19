@@ -107,7 +107,7 @@ void HapCWComplexExporter<ComplexType>::ExportData(const char* filename)
 {
     std::ofstream output(filename);
 
-    output<<"A:=[[1,1,1],[1,0,1],[1,1,1]];;"<<std::endl;
+    output<<"A:=[ [[1,1,1],[1,0,1],[1,1,1]] , [[1,1,1],[0,0,0],[0,0,0]] , [[1,1,1],[1,0,1],[1,1,1]] ];;"<<std::endl;
     output<<"B:=PureCubicalComplex(A);"<<std::endl;
     output<<"Y:=CubicalComplexToRegularCWComplex(B);"<<std::endl;
 
@@ -164,7 +164,7 @@ void HapCWComplexExporter<ComplexType>::ExportData(const char* filename)
             else
             {
                 int size = _coboundaries[i][j].size();
-                output<<"[";
+                output<<"["<<size<<", ";
                 for (int k = 0; k < size; k++)
                 {
                     output<<_coboundaries[i][j][k];
@@ -293,6 +293,11 @@ void HapCWComplexExporter<ComplexType>::ExportData(const char* filename)
         output<<" ";
     }
     output<<"];"<<std::endl;
+
+    output<<"Y!.nrCells:=function(n);"<<std::endl;
+    output<<"if n>"<<_maxDim<<" then return 0; fi;"<<std::endl;
+    output<<"return Length(Filtered(Y!.boundaries[n+1],x->not x[1]=0));"<<std::endl;
+    output<<"end;"<<std::endl;
 
     output.close();
 }

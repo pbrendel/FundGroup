@@ -9,6 +9,7 @@
 #include "FundGroup.h"
 
 #include <cassert>
+#include <fstream>
 #include <list>
 #include <sstream>
 #include <vector>
@@ -137,7 +138,10 @@ void FundGroup<ComplexSupplierType>::ComputeRelators()
                 r.push_back(RelatorComponent(jt->first, jt->second));
             }
         }
-        _relators.push_back(r);
+        if (r.size() > 0)
+        {
+            _relators.push_back(r);
+        }
     }
 }
 
@@ -181,7 +185,7 @@ void FundGroup<ComplexSupplierType>::SimplifyRelators()
                 reduced = true;
             }
         }
-        _logger.Log(FGLogger::Details)<<"generators left: "<<generators.size()<<std::endl;
+        _logger.Log(FGLogger::Debug)<<"generators left: "<<generators.size()<<std::endl;
     }
     Relators newRelators;
     for (size_t i = 0; i < relatorsCount; i++)
@@ -248,7 +252,7 @@ std::string FundGroup<ComplexSupplierType>::ToString()
             typename Relator::iterator jtEnd = r.end();
             for ( ; jt != jtEnd; ++jt)
             {
-                str<<"g["<<symbols[jt->first]<<"]";
+                str<<"f"<<symbols[jt->first];
                 if (jt->second != 1)
                 {
                     str<<"^"<<jt->second;
@@ -263,6 +267,69 @@ std::string FundGroup<ComplexSupplierType>::ToString()
     }
 
     return str.str();
+}
+
+template <typename ComplexSupplierType>
+void FundGroup<ComplexSupplierType>::ExportHapProgram(const char* filename)
+{
+    std::ofstream output(filename);
+    if (!output.is_open())
+    {
+        return;
+    }
+
+    std::map<Cell, int> symbols;
+    {
+        Cells &_1cells = _cellsByDim[1];
+        int c = 1;
+        int index = 0;
+        typename Cells::iterator it = _1cells.begin();
+        typename Cells::iterator itEnd = _1cells.end();
+        for ( ; it != itEnd; ++it)
+        {
+            symbols[*it] = c++;
+        }
+    }
+
+    {
+        output<<"F:=FreeGroup("<<_cellsByDim[1].size()<<");"<<std::endl;
+        output<<"g:=GeneratorsOfGroup(F);"<<std::endl;
+        output<<"rels:=[];"<<std::endl;
+
+        typename Relators::iterator it = _relators.begin();
+        typename Relators::iterator itEnd = _relators.end();
+        for ( ; it != itEnd; ++it)
+        {
+            Relator r = *it;
+            int index = 0;
+            typename Relator::iterator jt = r.begin();
+            typename Relator::iterator jtEnd = r.end();
+            output<<"w:=";
+            for ( ; jt != jtEnd; ++jt)
+            {
+                output<<"g["<<symbols[jt->first]<<"]";
+                if (jt->second != 1)
+                {
+                    output<<"^"<<jt->second;
+                }
+                if (++index < r.size())
+                {
+                    output<<"*";
+                }
+            }
+            output<<"; Add(rels,w);"<<std::endl;
+        }
+
+        output<<"G:=PresentationFpGroup(F/rels);"<<std::endl;
+        output<<"SimplifyPresentation(G);"<<std::endl;
+        output<<"P:=FpGroupPresentation(G);"<<std::endl;
+        output<<"R:=RelatorsOfFpGroup(P);"<<std::endl;
+        output<<"L:=LowIndexSubgroupsFpGroup(P,10);;"<<std::endl;
+        output<<"K:=List(L,AbelianInvariants);;"<<std::endl;
+        output<<"Sort(K);"<<std::endl;
+    }
+
+    output.close();
 }
 
 template <typename ComplexSupplierType>

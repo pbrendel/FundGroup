@@ -10,10 +10,18 @@
 
 #include "SComplexFactory.h"
 
+#include "HapCWComplexExporter.h"
+
 template <typename Traits>
 NotReducedSComplexSupplier<Traits>::NotReducedSComplexSupplier(const char* filename)
 {
     _complex = SComplexFactory<InputSComplex>::Load(filename);
+
+    HapCWComplexExporter<InputSComplex> exporter;
+    exporter.CollectComplexData(_complex);
+    exporter.GenerateTrivialVectorField(_complex);
+    exporter.ExportData("export.txt");
+
 }
 
 template <typename Traits>

@@ -103,6 +103,27 @@ void HapCWComplexExporter<ComplexType>::CollectVectorFieldData(ComplexPtr comple
 }
 
 template <typename ComplexType>
+void HapCWComplexExporter<ComplexType>::GenerateTrivialVectorField(ComplexPtr complex)
+{
+    // vector field is already filled with -1
+    // the only thing we need to do is mark every cell as critical
+    _criticalCells.clear();
+    AllCells allCells = complex->iterators().allCells();
+    typename AllCells::iterator it = allCells.begin();
+    typename AllCells::iterator itEnd = allCells.end();
+    for ( ; it != itEnd; ++it)
+    {
+        Dim dim = it->getDim();
+        size_t index = _idIndexMapByDim[dim][it->getId()];
+        assert(dim >= 0 && dim <= _maxDim);
+        std::vector<int> criticalCell(2);
+        criticalCell[0] = static_cast<int>(dim);
+        criticalCell[1] = static_cast<int>(index + 1);
+        _criticalCells.push_back(criticalCell);
+    }
+}
+
+template <typename ComplexType>
 void HapCWComplexExporter<ComplexType>::ExportData(const char* filename)
 {
     std::ofstream output(filename);
@@ -230,6 +251,8 @@ void HapCWComplexExporter<ComplexType>::ExportData(const char* filename)
         output<<" ";
     }
     output<<"];"<<std::endl;
+/*
+
 
     output<<"Y!.vectorField:=[ ";
     for (int i = 1; i <= _maxDim; i++)
@@ -298,7 +321,7 @@ void HapCWComplexExporter<ComplexType>::ExportData(const char* filename)
     output<<"if n>"<<_maxDim<<" then return 0; fi;"<<std::endl;
     output<<"return Length(Filtered(Y!.boundaries[n+1],x->not x[1]=0));"<<std::endl;
     output<<"end;"<<std::endl;
-
+*/
     output.close();
 }
 

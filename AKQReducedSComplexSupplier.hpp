@@ -11,10 +11,28 @@
 #include "AKQHomotopicPaths.h"
 #include "SComplexFactory.h"
 
+#include "HapCWComplexExporter.h"
+
 template <typename Traits>
 AKQReducedSComplexSupplier<Traits>::AKQReducedSComplexSupplier(const char* filename)
 {
     _complex = SComplexFactory<InputSComplex>::Load(filename);
+
+
+    for ( int i = 0; i <= 3; i++)
+    {
+        int count = 0;
+        typename InputSComplex::ColoredIterators::Iterators::DimCells dimCells = _complex->iterators(1).dimCells(i);
+        typename InputSComplex::ColoredIterators::Iterators::DimCells::iterator it = dimCells.begin();
+        typename InputSComplex::ColoredIterators::Iterators::DimCells::iterator itEnd = dimCells.end();
+        for ( ; it != itEnd; ++it)
+        {
+            count++;
+        }
+        _logger.Log(FGLogger::Debug)<<"number of cells in dim "<<i<<" = "<<count<<std::endl;
+    }
+
+
     CreateAlgorithm();
 }
 
@@ -28,6 +46,9 @@ AKQReducedSComplexSupplier<Traits>::AKQReducedSComplexSupplier(DebugComplexType 
 template <typename Traits>
 void AKQReducedSComplexSupplier<Traits>::CreateAlgorithm()
 {
+    HapCWComplexExporter<InputSComplex> exporter;
+    exporter.CollectComplexData(_complex);
+
     _logger.Begin(FGLogger::Details, "performing coreductions");
     _algorithm = AlgorithmPtr(new Algorithm(new Strategy(*_complex)));
     _algorithm->setStoreReducedCells(_logger.PrintCoreducedCellsCount());
@@ -38,6 +59,9 @@ void AKQReducedSComplexSupplier<Traits>::CreateAlgorithm()
         _logger.Log(FGLogger::Details)<<"number of reduced pairs: "<<_algorithm->getReducedCells().size()<<std::endl;
         _logger.Log(FGLogger::Details)<<"number of extracted cells: "<<_algorithm->getExtractedCells().size()<<std::endl;
     }
+
+    exporter.CollectVectorFieldData(_complex, _algorithm->getStrategy());
+    exporter.ExportData("export.txt");
 }
 
 template <typename Traits>

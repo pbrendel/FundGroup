@@ -20,6 +20,7 @@ public:
 
     void CollectComplexData(ComplexPtr complex);
     void CollectVectorFieldData(ComplexPtr complex, StrategyPtr strategy);
+    void GenerateTrivialVectorField(ComplexPtr complex);
     void ExportData(const char* filename);
 
     void PrintIdIndexMap();

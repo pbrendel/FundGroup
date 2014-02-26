@@ -42,7 +42,7 @@ void FundGroup<ComplexSupplierType>::Compute()
     }
     _logger.Begin(FGLogger::Details, "computing relators");
     ComputeRelators();
-    SimplifyRelators();
+    //SimplifyRelators();
     _logger.End();
     PrintDebug();
 }

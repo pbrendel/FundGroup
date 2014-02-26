@@ -30,12 +30,12 @@ void AKQHomotopicPaths<Traits>::ComputeAcesMap()
 
 template <typename Traits>
 typename AKQHomotopicPaths<Traits>::OutputChain
-AKQHomotopicPaths<Traits>::GetHomotopicBoundary(const OutputCell& cell)
+AKQHomotopicPaths<Traits>::GetHomotopicBoundary(const OutputCellId& cellId)
 {
     // cell needs to be an ace
-    assert(_acesMap.right.find(cell.getId()) != _acesMap.right.end());
+    assert(_acesMap.right.find(cellId) != _acesMap.right.end());
     // we get an original cell
-    InputCell originalCell = (*_originalComplex)[_acesMap.right.at(cell.getId())];
+    InputCell originalCell = (*_originalComplex)[_acesMap.right.at(cellId)];
     assert(_strategy->akq[originalCell.getId()] == Strategy::ACE);
 
     // we take its boundary cells
@@ -68,7 +68,7 @@ AKQHomotopicPaths<Traits>::GetHomotopicBoundary(const OutputCell& cell)
         OutputCell ace = (*_outputComplex)[_acesMap.left.at(jt->first)];
         int ci = jt->second;//_outputComplex->coincidenceIndex(cell, ace);
         assert(ci != 0);
-        boundary.push_back(std::pair<OutputCell, int>(ace, ci));
+        boundary.push_back(std::pair<OutputCellId, int>(ace.getId(), ci));
     }
     return boundary;
 }
@@ -236,5 +236,5 @@ void AKQHomotopicPaths<Traits>::Negate(Path& path)
     }
 }
 
-#endif	/* AKQHOMOTOPICPATHS_HPP */
 
+#endif	/* AKQHOMOTOPICPATHS_HPP */

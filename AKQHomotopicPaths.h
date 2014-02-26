@@ -19,22 +19,21 @@ class AKQHomotopicPaths
     typedef typename Traits::OutputSComplex     OutputSComplex;
 
 public:
-
+    typedef typename InputSComplex::Id          InputCellId;
+    typedef typename OutputSComplex::Id         OutputCellId;
     typedef AKQReduceStrategy<InputSComplex>    Strategy;
     typedef typename OutputSComplex::Cell       OutputCell;
-    typedef std::vector<std::pair<OutputCell, int> > OutputChain;
+    typedef std::vector<std::pair<OutputCellId, int> > OutputChain;
 
     AKQHomotopicPaths(Strategy *strategy);
 
-    OutputChain GetHomotopicBoundary(const OutputCell& cell);
+    OutputChain GetHomotopicBoundary(const OutputCellId& cell);
 
 private:
 
     typedef typename Strategy::AKQType                  AKQType;
     typedef typename InputSComplex::Cell                InputCell;
-    typedef std::vector<std::pair<InputCell, int> >     InputChain;
-    typedef typename InputSComplex::Id                  InputCellId;
-    typedef typename OutputSComplex::Id                 OutputCellId;
+    typedef std::vector<std::pair<InputCellId, int> >   InputChain;
     typedef std::pair<InputCellId, int>                 PathCell;
     typedef std::list<PathCell>                         Path;
     typedef std::map<InputCellId, Path>                 PathsMap;
@@ -59,4 +58,3 @@ private:
 #include "AKQHomotopicPaths.hpp"
 
 #endif	/* AKQHOMOTOPICPATHS_H */
-

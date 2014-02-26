@@ -8,7 +8,6 @@
 
 #include <map>
 #include <boost/shared_ptr.hpp>
-#include <redHom/algorithm/Coreduction.hpp>
 
 #include "DebugComplexType.h"
 
@@ -33,15 +32,16 @@ private:
 public:
 
     typedef Traits                              HomologyTraits;
-    typedef typename OutputSComplex::Cell       Cell;
-    typedef std::set<Cell>                      Cells;
+    typedef typename OutputSComplex::Id         Id;
+    typedef std::set<Id>                        Cells;
     typedef std::vector<Cells>                  CellsByDim;
-    typedef std::vector<std::pair<Cell, int> >  Chain;
+    typedef std::vector<std::pair<Id, int> >  Chain;
 
     NotReducedSComplexSupplier(const char* filename);
+    NotReducedSComplexSupplier(InputSComplexPtr inputSComplex);
     NotReducedSComplexSupplier(DebugComplexType type);
-    bool GetCells(CellsByDim& cellsByDim, std::map<Cell, Chain>& _2Boundaries);
-    Chain GetBoundary(const Cell& cell);
+    bool GetCells(CellsByDim& cellsByDim, std::map<Id, Chain>& _2Boundaries);
+    Chain GetBoundary(const Id& cellId);
 
     void PrintDebug();
 
@@ -53,4 +53,3 @@ private:
 #include "NotReducedSComplexSupplier.hpp"
 
 #endif	/* NOTREDUCEDSCOMPLEXSUPPLIER_H */
-

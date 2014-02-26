@@ -9,7 +9,7 @@
 #include "CubCellSetFactory.h"
 
 #include <capd/bitSet/BitmapT.hpp>
-#include <capd/bitSet/EuclBitSetT.hpp>
+#include <capd/bitSet/EuclBitSetT.h>
 #include <capd/repSet/ECellMDCodeT.h>
 
 #include "FGLogger.h"
@@ -83,4 +83,3 @@ CubCellSetFactory<CubCellSetT>::Create(Cubes& cubes, Bounds& bounds, bool shave)
 }
 
 #endif	/* CUBCELLSETFACTORY_HPP */
-

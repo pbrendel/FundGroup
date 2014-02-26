@@ -10,7 +10,7 @@
 
 #include <capd/bitSet/BitmapT.hpp>
 #include <capd/cubSet/acyclicConfigs.hpp>
-#include <capd/bitSet/EuclBitSetT.hpp>
+#include <capd/bitSet/EuclBitSetT.h>
 
 #include "FGLogger.h"
 
@@ -85,4 +85,3 @@ CubSetFactory<CubSetT>::Create(Cubes& cubes, Bounds& bounds, bool shave)
 }
 
 #endif	/* CUBSETFACTORY_HPP */
-

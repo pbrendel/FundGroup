@@ -251,8 +251,6 @@ void HapCWComplexExporter<ComplexType>::ExportData(const char* filename)
         output<<" ";
     }
     output<<"];"<<std::endl;
-/*
-
 
     output<<"Y!.vectorField:=[ ";
     for (int i = 1; i <= _maxDim; i++)
@@ -321,7 +319,7 @@ void HapCWComplexExporter<ComplexType>::ExportData(const char* filename)
     output<<"if n>"<<_maxDim<<" then return 0; fi;"<<std::endl;
     output<<"return Length(Filtered(Y!.boundaries[n+1],x->not x[1]=0));"<<std::endl;
     output<<"end;"<<std::endl;
-*/
+
     output.close();
 }
 

@@ -41,14 +41,16 @@ public:
 
     typedef Traits                              HomologyTraits;
     typedef typename OutputSComplex::Cell       Cell;
-    typedef std::set<Cell>                      Cells;
+    typedef typename OutputSComplex::Id         Id;
+    typedef std::set<Id>                        Cells;
     typedef std::vector<Cells>                  CellsByDim;
-    typedef std::vector<std::pair<Cell, int> >  Chain;
+    typedef std::vector<std::pair<Id, int> >    Chain;
 
     AKQReducedSComplexSupplier(const char* filename);
+    AKQReducedSComplexSupplier(InputSComplexPtr inputSComplex);
     AKQReducedSComplexSupplier(DebugComplexType type);
-    bool GetCells(CellsByDim& cellsByDim, std::map<Cell, Chain>& _2Boundaries);
-    Chain GetBoundary(const Cell& cell);
+    bool GetCells(CellsByDim& cellsByDim, std::map<Id, Chain>& _2Boundaries);
+    Chain GetBoundary(const Id& cell);
 
     void PrintDebug();
 
@@ -64,4 +66,3 @@ private:
 #include "AKQReducedSComplexSupplier.hpp"
 
 #endif	/* AKQREDUCEDSCOMPLEXSUPPLIER_H */
-

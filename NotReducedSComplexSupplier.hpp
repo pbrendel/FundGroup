@@ -22,6 +22,9 @@ NotReducedSComplexSupplier<Traits>::NotReducedSComplexSupplier(const char* filen
     exporter.GenerateTrivialVectorField(_complex);
     exporter.ExportData("export.txt");
 
+    // typedef ShaveAlgorithmFactory<InputSComplex> ShaveFactory;
+    // boost::shared_ptr<typename ShaveFactory::DefaultAlgorithm> shave = ShaveFactory().createDefault(*_complex);
+    // (*shave)();
 }
 
 template <typename Traits>
@@ -31,8 +34,14 @@ NotReducedSComplexSupplier<Traits>::NotReducedSComplexSupplier(DebugComplexType 
 }
 
 template <typename Traits>
+NotReducedSComplexSupplier<Traits>::NotReducedSComplexSupplier(InputSComplexPtr inputSComplex)
+    : _complex(inputSComplex)
+{
+}
+
+template <typename Traits>
 bool NotReducedSComplexSupplier<Traits>::GetCells(CellsByDim& cellsByDim,
-                                                  std::map<Cell, Chain>& _2Boundaries)
+                                                  std::map<Id, Chain>& _2Boundaries)
 {
     int maxDim = static_cast<int>(_complex->getDim());
     cellsByDim.resize(maxDim + 1);
@@ -43,7 +52,8 @@ bool NotReducedSComplexSupplier<Traits>::GetCells(CellsByDim& cellsByDim,
         typename DimCells::iterator itEnd = dimCells.end();
         for ( ; it != itEnd; ++it)
         {
-            cellsByDim[dim].insert(*it);
+            assert(it->getDim() == dim);
+            cellsByDim[dim].insert(it->getId());
         }
     }
 
@@ -51,7 +61,7 @@ bool NotReducedSComplexSupplier<Traits>::GetCells(CellsByDim& cellsByDim,
     _2Boundaries.clear();
     if (cellsByDim.size() > 2)
     {
-        Cells _2cells = cellsByDim[2];
+        Cells& _2cells = cellsByDim[2];
         typename Cells::iterator it = _2cells.begin();
         typename Cells::iterator itEnd = _2cells.end();
         for ( ; it != itEnd; ++it)
@@ -64,17 +74,23 @@ bool NotReducedSComplexSupplier<Traits>::GetCells(CellsByDim& cellsByDim,
 
 template <typename Traits>
 typename NotReducedSComplexSupplier<Traits>::Chain
-NotReducedSComplexSupplier<Traits>::GetBoundary(const Cell& cell)
+NotReducedSComplexSupplier<Traits>::GetBoundary(const Id& cellId)
 {
+    typedef typename OutputSComplex::Cell Cell;
+    Cell cell = (*_complex)[cellId];
+    assert(cell.getColor() == 1);
+
     Chain boundary;
     BdCells bdCells = _complex->iterators(1).bdCells(cell);
     typename BdCells::iterator it = bdCells.begin();
     typename BdCells::iterator itEnd = bdCells.end();
     for( ; it != itEnd; ++it)
     {
+        assert(it->getColor() == 1);
         int ci = _complex->coincidenceIndex(cell, *it);
         assert(ci != 0);
-        boundary.push_back(std::pair<Cell, int>(*it, ci));
+        assert(ci == -1 || ci == 1);
+        boundary.push_back(std::pair<Id, int>(it->getId(), ci));
     }
     return boundary;
 }
@@ -85,4 +101,3 @@ void NotReducedSComplexSupplier<Traits>::PrintDebug()
 }
 
 #endif	/* NOTREDUCEDSCOMPLEXSUPPLIER_HPP */
-

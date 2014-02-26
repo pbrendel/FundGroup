@@ -14,6 +14,8 @@
 #include <sstream>
 #include <vector>
 
+#include <redHom/algorithm/Shave.hpp>
+
 template <typename ComplexSupplierType>
 FundGroup<ComplexSupplierType>::FundGroup(const char *filename)
 {
@@ -29,15 +31,25 @@ FundGroup<ComplexSupplierType>::FundGroup(DebugComplexType debugComplexType)
 }
 
 template <typename ComplexSupplierType>
+FundGroup<ComplexSupplierType>::FundGroup(ComplexSupplierPtr complexSupplier)
+    : _complexSupplier(complexSupplier)
+{
+    Compute();
+}
+
+template <typename ComplexSupplierType>
 void FundGroup<ComplexSupplierType>::Compute()
 {
     _logger.Begin(FGLogger::Details, "getting cells data");
     _complexSupplier->GetCells(_cellsByDim, _2Boundaries);
     _logger.End();
+
+    // std::cerr << "size: " << _cellsByDim[0].size() << " " << _cellsByDim[1].size() << " " << _cellsByDim[2].size() << std::endl;
+
     if (_cellsByDim[0].size() > 1)
     {
         _logger.Begin(FGLogger::Details, "creating spanning tree");
-        CreateSpanningTree();
+	CreateSpanningTree();
         _logger.End();
     }
     _logger.Begin(FGLogger::Details, "computing relators");
@@ -50,7 +62,7 @@ void FundGroup<ComplexSupplierType>::Compute()
 template <typename ComplexSupplierType>
 void FundGroup<ComplexSupplierType>::CreateSpanningTree()
 {
-    std::list<Cell> _1cells(_cellsByDim[1].begin(), _cellsByDim[1].end());
+    std::list<Id> _1cells(_cellsByDim[1].begin(), _cellsByDim[1].end());
     _cellsByDim[1].clear();
     Cells verts;
     Cells &edges = _spanningTreeEdges;
@@ -60,17 +72,19 @@ void FundGroup<ComplexSupplierType>::CreateSpanningTree()
     while (found)
     {
         found = false;
-        typename std::list<Cell>::iterator it = _1cells.begin();
-        typename std::list<Cell>::iterator itEnd = _1cells.end();
+        typename std::list<Id>::iterator it = _1cells.begin();
+        typename std::list<Id>::iterator itEnd = _1cells.end();
         while (it != itEnd)
         {
             Chain boundary = _complexSupplier->GetBoundary(*it);
             if (boundary.size() == 2)
             {
                 typename Chain::iterator cit = boundary.begin();
-                Cell v0 = cit->first;
+                Id v0 = cit->first;
                 cit++;
-                Cell v1 = cit->first;
+                Id v1 = cit->first;
+                assert(v0 != v1);
+
                 bool v0Found = verts.find(v0) != verts.end();
                 bool v1Found = verts.find(v1) != verts.end();
                 if (v0Found && !v1Found)
@@ -106,6 +120,8 @@ void FundGroup<ComplexSupplierType>::CreateSpanningTree()
     }
     assert(verts.size() == _cellsByDim[0].size());
 
+    // std::cerr << "ST: " << _cellsByDim[1].size() << " " << _1cells.size() << " " << verts.size() << " " << edges.size() << std::endl;
+
     _cellsByDim[1].insert(_1cells.begin(), _1cells.end());
 
     // TODO!
@@ -116,8 +132,14 @@ void FundGroup<ComplexSupplierType>::CreateSpanningTree()
 template <typename ComplexSupplierType>
 void FundGroup<ComplexSupplierType>::ComputeRelators()
 {
-    typename std::map<Cell, Chain>::iterator it = _2Boundaries.begin();
-    typename std::map<Cell, Chain>::iterator itEnd = _2Boundaries.end();
+    int found = 0;
+    int sumSize = 0;
+
+    typename std::map<Id, Chain>::iterator it = _2Boundaries.begin();
+    typename std::map<Id, Chain>::iterator itEnd = _2Boundaries.end();
+
+    // std::cerr << "2 bound size: " << _2Boundaries.size() << std::endl;
+
     for ( ; it != itEnd; ++it)
     {
         Cells &edges = _spanningTreeEdges;
@@ -125,6 +147,11 @@ void FundGroup<ComplexSupplierType>::ComputeRelators()
         Chain boundary = it->second;
         typename Chain::iterator jt = boundary.begin();
         typename Chain::iterator jtEnd = boundary.end();
+
+        sumSize += boundary.size();
+
+        // std::cerr << "BD size: " << boundary.size() << std::endl;
+
         for ( ; jt != jtEnd; ++jt)
         {
             // if edge is not contained in the spanning tree
@@ -136,6 +163,7 @@ void FundGroup<ComplexSupplierType>::ComputeRelators()
             if (edges.find(jt->first) == edges.end())
             {
                 r.push_back(RelatorComponent(jt->first, jt->second));
+                ++found;
             }
         }
         if (r.size() > 0)
@@ -143,12 +171,15 @@ void FundGroup<ComplexSupplierType>::ComputeRelators()
             _relators.push_back(r);
         }
     }
+
+    //std::cerr << "Found: " << found << std::endl;
+    //std::cerr << "sumSize: " << sumSize << std::endl;
 }
 
 template <typename ComplexSupplierType>
 void FundGroup<ComplexSupplierType>::SimplifyRelators()
 {
-    std::set<Cell>& generators = _cellsByDim[1];
+    std::set<Id>& generators = _cellsByDim[1];
     size_t relatorsCount = _relators.size();
     std::vector<bool> unusedRelators(relatorsCount);
     bool reduced = true;
@@ -219,7 +250,7 @@ std::string FundGroup<ComplexSupplierType>::ToString()
         return "Trivial group";
     }
 
-    std::map<Cell, int> symbols;
+    std::map<Id, int> symbols;
 
     {
         str<<"Generators: [";
@@ -270,21 +301,17 @@ std::string FundGroup<ComplexSupplierType>::ToString()
 }
 
 template <typename ComplexSupplierType>
-void FundGroup<ComplexSupplierType>::ExportHapProgram(const char* filename)
+std::string FundGroup<ComplexSupplierType>::HapExpression() const
 {
-    std::ofstream output(filename);
-    if (!output.is_open())
-    {
-        return;
-    }
+  std::ostringstream output;
 
-    std::map<Cell, int> symbols;
+    std::map<Id, int> symbols;
     {
-        Cells &_1cells = _cellsByDim[1];
+        const Cells &_1cells = _cellsByDim[1];
         int c = 1;
         int index = 0;
-        typename Cells::iterator it = _1cells.begin();
-        typename Cells::iterator itEnd = _1cells.end();
+        typename Cells::const_iterator it = _1cells.begin();
+        typename Cells::const_iterator itEnd = _1cells.end();
         for ( ; it != itEnd; ++it)
         {
             symbols[*it] = c++;
@@ -296,12 +323,17 @@ void FundGroup<ComplexSupplierType>::ExportHapProgram(const char* filename)
         output<<"g:=GeneratorsOfGroup(F);"<<std::endl;
         output<<"rels:=[];"<<std::endl;
 
-        typename Relators::iterator it = _relators.begin();
-        typename Relators::iterator itEnd = _relators.end();
+	//std::cerr << " _relators size: " << _relators.size() << std::endl;
+
+        typename Relators::const_iterator it = _relators.begin();
+        typename Relators::const_iterator itEnd = _relators.end();
         for ( ; it != itEnd; ++it)
         {
             Relator r = *it;
             int index = 0;
+
+	    //	std::cerr << " r size: " << r.size() << std::endl;
+
             typename Relator::iterator jt = r.begin();
             typename Relator::iterator jtEnd = r.end();
             output<<"w:=";
@@ -329,6 +361,30 @@ void FundGroup<ComplexSupplierType>::ExportHapProgram(const char* filename)
         output<<"Sort(K);"<<std::endl;
     }
 
+    return output.str();
+}
+
+template <typename ComplexSupplierType>
+std::string FundGroup<ComplexSupplierType>::HapFunctionBody() const
+{
+  std::ostringstream output;
+  output<<"local F,g, rels, w, G, P, R, L, K;" << std::endl;
+  output << HapExpression() << std::endl;
+  output << "return [K, R];;" << std::endl;
+
+  return output.str();
+}
+
+template <typename ComplexSupplierType>
+void FundGroup<ComplexSupplierType>::ExportHapProgram(const char* filename) const
+{
+    std::ofstream output(filename);
+    if (!output.is_open())
+    {
+        return;
+    }
+
+    output << HapExpression() << std::endl;
     output.close();
 }
 
@@ -348,7 +404,7 @@ void FundGroup<ComplexSupplierType>::PrintDebug()
     }
 
     _logger.Log(FGLogger::Debug)<<"homotopic 2 boundaries:"<<std::endl;
-    for (typename std::map<Cell, Chain>::iterator it = _2Boundaries.begin();
+    for (typename std::map<Id, Chain>::iterator it = _2Boundaries.begin();
                                                   it != _2Boundaries.end();
                                                   ++it)
     {
@@ -361,4 +417,3 @@ void FundGroup<ComplexSupplierType>::PrintDebug()
 }
 
 #endif	/* FUNDGROUP_HPP */
-

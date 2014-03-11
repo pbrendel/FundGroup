@@ -97,24 +97,22 @@ template <typename Traits>
 typename SComplexFactory<SComplex<Traits> >::SComplexPtr
 SComplexFactory<SComplex<Traits> >::Load(const char* filename)
 {
-    // Dims dims;
-    // KappaMap kappaMap;
-    // FileType fileType = DetermineFileType(filename);
-    // switch (fileType)
-    // {
-    //     case FT_KappaMap:
-    //         KappaMapSupplier<Id, int, Dim>::Load(filename, dims, kappaMap);
-    //         break;
-    //     case FT_Cubes:
-    //     case FT_Simplices:
-    //     default:
-    //         throw std::logic_error("not implemented");
-    // }
-    //return (new SComplexType(3, dims, kappaMap, 1));
-
+    Dims dims;
+    KappaMap kappaMap;
     SComplexReader<Traits> reader;
-    SComplexPtr complex = reader(filename, 3, 1);
-    return complex;
+    FileType fileType = DetermineFileType(filename);
+    switch (fileType)
+    {
+        case FT_KappaMap:
+            KappaMapSupplier<Id, int, Dim>::Load(filename, dims, kappaMap);
+            break;
+        case FT_Cubes:
+            return reader(filename, 3, 1);
+        case FT_Simplices:
+        default:
+            throw std::logic_error("not implemented");
+    }
+    return SComplexPtr(new SComplexType(3, dims, kappaMap, 1));
 }
 
 template <typename Traits>
@@ -145,15 +143,15 @@ SComplexFactory<SComplex<Traits> >::DetermineFileType(const char* filename)
     if (len < 5)
     {
         // cannot determine by its extension
-        // assuming default - Kappa map format
-        return FT_KappaMap;
+        // assuming default - list of full cubes
+        return FT_Cubes;
     }
 
-    if (   (tolower(filename[len - 3]) == 'c')
-        && (tolower(filename[len - 2]) == 'u')
-        && (tolower(filename[len - 1]) == 'b') )
+    if (   (tolower(filename[len - 3]) == 'k')
+        && (tolower(filename[len - 2]) == 'a')
+        && (tolower(filename[len - 1]) == 'p') )
     {
-        return FT_Cubes;
+        return FT_KappaMap;
     }
 
     if (   (tolower(filename[len - 3]) == 's')
@@ -163,7 +161,7 @@ SComplexFactory<SComplex<Traits> >::DetermineFileType(const char* filename)
         return FT_Simplices;
     }
 
-    return FT_KappaMap;
+    return FT_Cubes;
 }
 
 #endif	/* SCOMPLEXFACTORY_HPP */

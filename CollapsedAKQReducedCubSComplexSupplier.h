@@ -36,17 +36,14 @@ private:
         DIM = Traits::DIM,
     };
 
-    // OutputSComplexType is a SComplex parametrized with DefaultTraits
     typedef boost::shared_ptr<InputSComplex>        InputSComplexPtr;
     typedef typename Traits::ScalarType             Scalar;
     typedef typename Traits::IntType                Int;
 
-    typedef typename InputSComplex::Id              Id;
     typedef typename InputSComplex::Dim             Dim;
     typedef typename InputSComplex::Dims            Dims;
     typedef typename InputSComplex::KappaMap        KappaMap;
     typedef typename InputSComplex::KappaMapEntry   KappaMapEntry;
-
     typedef typename OutputSComplex::Iterators::DimCells DimCells;
     typedef typename OutputSComplex::Iterators::BdCells  BdCells;
 
@@ -56,16 +53,21 @@ private:
 
 public:
 
-    typedef Traits                              HomologyTraits;
-    typedef typename OutputSComplex::Cell       Cell;
-    typedef std::set<Cell>                      Cells;
-    typedef std::vector<Cells>                  CellsByDim;
-    typedef std::vector<std::pair<Cell, int> >  Chain;
+    typedef Traits                                  HomologyTraits;
+    typedef typename InputSComplex::Id              Id;
+    typedef typename OutputSComplex::Cell           Cell;
+    typedef std::set<Id>                            Cells;
+    typedef std::vector<Cells>                      CellsByDim;
+    typedef std::vector<std::pair<Id, int> >        Chain;
 
     CollapsedAKQReducedCubSComplexSupplier(const char* filename);
     CollapsedAKQReducedCubSComplexSupplier(DebugComplexType type);
-    bool GetCells(CellsByDim& cellsByDim, std::map<Cell, Chain>& _2Boundaries);
-    Chain GetBoundary(const Cell& cell);
+    bool GetCells(CellsByDim& cellsByDim, std::map<Id, Chain>& _2Boundaries);
+    Chain GetBoundary(const Id& cellId);
+
+    template <typename ComplexType>
+    std::list<std::pair<typename ComplexType::Id, int> >
+    GetOrdered2Boundary(ComplexType* complex, const typename ComplexType::Id& cellId);
 
     void PrintDebug();
 

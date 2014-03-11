@@ -118,11 +118,11 @@ void CubesSupplier<T, DIM>::Create(DebugComplexType type, Cubes& cubes, Bounds& 
     bounds.clear();
     switch (type)
     {
-        case DCT_Sphere2:
-            FillSphere2(cubes, bounds);
+        case DCT_S1:
+            FillS1(cubes, bounds);
             break;
-        case DCT_Sphere3:
-            FillSphere3(cubes, bounds);
+        case DCT_S2:
+            FillS2(cubes, bounds);
             break;
         case DCT_Torus:
             FillTorus(cubes, bounds);
@@ -208,13 +208,13 @@ void CubesSupplier<T, DIM>::ParseHapBitmap(istream& str, Cubes& cubes, Bounds& b
 }
 
 template <typename T, int DIM>
-void CubesSupplier<T, DIM>::FillSphere2(Cubes& cubes, Bounds& bounds)
+void CubesSupplier<T, DIM>::FillS1(Cubes& cubes, Bounds& bounds)
 {
     assert(DIM == 3);
     bounds.push_back(Bound(3));
     bounds.push_back(Bound(3));
     bounds.push_back(Bound(3));
-    // filling with 2-sphere (a cube with tunnel)
+    // filling with 1-sphere (a cube with tunnel)
     Cube cube(3);
     for (Coord i = 0; i < 3; i++)
     {
@@ -237,13 +237,13 @@ void CubesSupplier<T, DIM>::FillSphere2(Cubes& cubes, Bounds& bounds)
 }
 
 template <typename T, int DIM>
-void CubesSupplier<T, DIM>::FillSphere3(Cubes& cubes, Bounds& bounds)
+void CubesSupplier<T, DIM>::FillS2(Cubes& cubes, Bounds& bounds)
 {
     assert(DIM == 3);
     bounds.push_back(Bound(3));
     bounds.push_back(Bound(3));
     bounds.push_back(Bound(3));
-    // filling with 3-sphere (an "empty" cube)
+    // filling with 2-sphere (an "empty" cube)
     Cube cube(DIM);
     for (Coord i = 0; i < 3; i++)
     {
@@ -306,7 +306,7 @@ void CubesSupplier<T, DIM>::FillCustom0(Cubes& cubes, Bounds& bounds)
 {
     Cubes cubesTmp;
     Bounds boundsTmp;
-    FillSphere2(cubesTmp, boundsTmp);
+    FillS1(cubesTmp, boundsTmp);
     CreateComplement(cubesTmp, boundsTmp, cubes, bounds);
 }
 

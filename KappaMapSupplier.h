@@ -28,8 +28,8 @@ public:
 
 private:
 
-    static void FillSphere2(Dims& dims, KappaMap& kappaMap);
-    static void FillSphere3(Dims& dims, KappaMap& kappaMap);
+    static void FillS1(Dims& dims, KappaMap& kappaMap);
+    static void FillS2(Dims& dims, KappaMap& kappaMap);
     static void FillTorus(Dims& dims, KappaMap& kappaMap);
     static void FillSkeleton(Dims& dims, KappaMap& kappaMap);
     static void FillCustom0(Dims& dims, KappaMap& kappaMap);

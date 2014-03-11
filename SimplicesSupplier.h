@@ -25,8 +25,8 @@ public:
 
 private:
 
-    static void FillSphere2(Simplices& simplices);
-    static void FillSphere3(Simplices& simplices);
+    static void FillS1(Simplices& simplices);
+    static void FillS2(Simplices& simplices);
     static void FillTorus(Simplices& simplices);
     static void FillSkeleton(Simplices& simplices);
     static void FillCustom0(Simplices& simplices);

@@ -50,7 +50,11 @@ public:
     AKQReducedSComplexSupplier(InputSComplexPtr inputSComplex);
     AKQReducedSComplexSupplier(DebugComplexType type);
     bool GetCells(CellsByDim& cellsByDim, std::map<Id, Chain>& _2Boundaries);
-    Chain GetBoundary(const Id& cell);
+    Chain GetBoundary(const Id& cellId);
+
+    template <typename ComplexType>
+    std::list<std::pair<typename ComplexType::Id, int> >
+    GetOrdered2Boundary(ComplexType* complex, const typename ComplexType::Id& cellId);
 
     void PrintDebug();
 

@@ -8,18 +8,21 @@
 
 #include "AKQHomotopicPaths.h"
 
-template <typename Traits>
-AKQHomotopicPaths<Traits>::AKQHomotopicPaths(Strategy* strategy)
-    : _strategy(strategy)
+template <typename Supplier>
+AKQHomotopicPaths<Supplier>::AKQHomotopicPaths(Supplier* complexSupplier,
+                                               Strategy* strategy)
+    : _complexSupplier(complexSupplier)
+    , _strategy(strategy)
 {
+    assert(_complexSupplier != 0);
     assert(_strategy != 0);
     _originalComplex = &_strategy->getComplex();
     _outputComplex = _strategy->getOutputComplex();
     ComputeAcesMap();
 }
 
-template <typename Traits>
-void AKQHomotopicPaths<Traits>::ComputeAcesMap()
+template <typename Supplier>
+void AKQHomotopicPaths<Supplier>::ComputeAcesMap()
 {
     OutputCellId id = OutputCellId(0);
     BOOST_FOREACH(InputCell ace, _strategy->aces)
@@ -28,9 +31,9 @@ void AKQHomotopicPaths<Traits>::ComputeAcesMap()
     }
 }
 
-template <typename Traits>
-typename AKQHomotopicPaths<Traits>::OutputChain
-AKQHomotopicPaths<Traits>::GetHomotopicBoundary(const OutputCellId& cellId)
+template <typename Supplier>
+typename AKQHomotopicPaths<Supplier>::OutputChain
+AKQHomotopicPaths<Supplier>::GetHomotopicBoundary(const OutputCellId& cellId)
 {
     // cell needs to be an ace
     assert(_acesMap.right.find(cellId) != _acesMap.right.end());
@@ -38,18 +41,8 @@ AKQHomotopicPaths<Traits>::GetHomotopicBoundary(const OutputCellId& cellId)
     InputCell originalCell = (*_originalComplex)[_acesMap.right.at(cellId)];
     assert(_strategy->akq[originalCell.getId()] == Strategy::ACE);
 
-    // we take its boundary cells
-    BdCells bdCells = _originalComplex->iterators().bdCells(originalCell);
-    typename BdCells::iterator it = bdCells.begin();
-    typename BdCells::iterator itEnd = bdCells.end();
-    Path bdPath;
-    for ( ; it != itEnd; ++it)
-    {
-        int ci = _originalComplex->coincidenceIndex(originalCell, *it);
-        assert(ci != 0);
-        bdPath.push_back(PathCell(it->getId(), ci));
-    }
-
+    // we take its boundary cells and create a homotopic path
+    Path bdPath = _complexSupplier->GetOrdered2Boundary(_originalComplex, originalCell.getId());
     Path homotopicPath;
     for (typename Path::iterator jt = bdPath.begin(); jt != bdPath.end(); ++jt)
     {
@@ -73,8 +66,8 @@ AKQHomotopicPaths<Traits>::GetHomotopicBoundary(const OutputCellId& cellId)
     return boundary;
 }
 
-template <typename Traits>
-void AKQHomotopicPaths<Traits>::GetHomotopicPath(const Path& path, Path& outPath)
+template <typename Supplier>
+void AKQHomotopicPaths<Supplier>::GetHomotopicPath(const Path& path, Path& outPath)
 {
     outPath.clear();
     typename Path::const_iterator it = path.begin();
@@ -116,8 +109,8 @@ void AKQHomotopicPaths<Traits>::GetHomotopicPath(const Path& path, Path& outPath
     }
 }
 
-template <typename Traits>
-void AKQHomotopicPaths<Traits>::GetHomotopicPath(const PathCell& cell, Path& outPath)
+template <typename Supplier>
+void AKQHomotopicPaths<Supplier>::GetHomotopicPath(const PathCell& cell, Path& outPath)
 {
     AKQType type = _strategy->akq[cell.first];
     if (type == Strategy::KING)
@@ -147,9 +140,9 @@ void AKQHomotopicPaths<Traits>::GetHomotopicPath(const PathCell& cell, Path& out
     }
 }
 
-template <typename Traits>
-typename AKQHomotopicPaths<Traits>::PathsMapIterator
-AKQHomotopicPaths<Traits>::GetQueenHomotopicPath(InputCellId cellId)
+template <typename Supplier>
+typename AKQHomotopicPaths<Supplier>::PathsMapIterator
+AKQHomotopicPaths<Supplier>::GetQueenHomotopicPath(InputCellId cellId)
 {
     // we can only compute homotopic path for QUEEN cell
     assert(_strategy->akq[cellId] == Strategy::QUEEN);
@@ -171,21 +164,21 @@ AKQHomotopicPaths<Traits>::GetQueenHomotopicPath(InputCellId cellId)
 
     // then, we take a boundary of KING cell and compute
     // alternative path for traversing given QUEEN cell
-    BdCells bdCells = _originalComplex->iterators().bdCells(*kingCell);
-    typename BdCells::iterator it = bdCells.begin();
-    typename BdCells::iterator itEnd = bdCells.end();
+    Path boundary = _complexSupplier->GetOrdered2Boundary(_originalComplex, kingCell->getId());
+    typename Path::iterator it = boundary.begin();
+    typename Path::iterator itEnd = boundary.end();
     for ( ; it != itEnd; ++it)
     {
-        int ci = _originalComplex->coincidenceIndex(*kingCell, *it);
+        int ci = it->second;
         assert(ci != 0);
-        if (it->getId() == cellId)
+        if (it->first == cellId)
         {
             orientation = ci;
             currentCells = &nextCells;
         }
         else
         {
-            currentCells->push_back(std::make_pair(it->getId(), ci));
+            currentCells->push_back(*it);
         }
     }
     assert(orientation != 0);
@@ -213,8 +206,8 @@ AKQHomotopicPaths<Traits>::GetQueenHomotopicPath(InputCellId cellId)
     return _queenPaths.insert(std::make_pair(cellId, homotopicPath)).first;
 }
 
-template <typename Traits>
-void AKQHomotopicPaths<Traits>::ReverseNegate(const Path& path, Path& outPath)
+template <typename Supplier>
+void AKQHomotopicPaths<Supplier>::ReverseNegate(const Path& path, Path& outPath)
 {
     outPath.clear();
     typename Path::const_reverse_iterator it = path.rbegin();
@@ -225,8 +218,8 @@ void AKQHomotopicPaths<Traits>::ReverseNegate(const Path& path, Path& outPath)
     }
 }
 
-template <typename Traits>
-void AKQHomotopicPaths<Traits>::Negate(Path& path)
+template <typename Supplier>
+void AKQHomotopicPaths<Supplier>::Negate(Path& path)
 {
     typename Path::iterator it = path.begin();
     typename Path::iterator itEnd = path.end();
@@ -235,6 +228,5 @@ void AKQHomotopicPaths<Traits>::Negate(Path& path)
         it->second = -it->second;
     }
 }
-
 
 #endif	/* AKQHOMOTOPICPATHS_HPP */

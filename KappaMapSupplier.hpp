@@ -73,11 +73,11 @@ void KappaMapSupplier<IdT, IndexT, DimT>::Create(DebugComplexType type,
     kappaMap.clear();
     switch (type)
     {
-        case DCT_Sphere2:
-            FillSphere2(dims, kappaMap);
+        case DCT_S1:
+            FillS1(dims, kappaMap);
             break;
-        case DCT_Sphere3:
-            FillSphere3(dims, kappaMap);
+        case DCT_S2:
+            FillS2(dims, kappaMap);
             break;
         case DCT_Torus:
             FillTorus(dims, kappaMap);
@@ -94,9 +94,9 @@ void KappaMapSupplier<IdT, IndexT, DimT>::Create(DebugComplexType type,
 }
 
 template <typename IdT, typename IndexT, typename DimT>
-void KappaMapSupplier<IdT, IndexT, DimT>::FillSphere2(Dims& dims, KappaMap& kappaMap)
+void KappaMapSupplier<IdT, IndexT, DimT>::FillS1(Dims& dims, KappaMap& kappaMap)
 {
-    // filling with 2-sphere (edges of a triangle)
+    // filling with 1-sphere (edges of a triangle)
     //                index - label
     dims.push_back(Dim(0)); // 0 - [0]
     dims.push_back(Dim(0)); // 1 - [1]
@@ -113,9 +113,9 @@ void KappaMapSupplier<IdT, IndexT, DimT>::FillSphere2(Dims& dims, KappaMap& kapp
 }
 
 template <typename IdT, typename IndexT, typename DimT>
-void KappaMapSupplier<IdT, IndexT, DimT>::FillSphere3(Dims& dims, KappaMap& kappaMap)
+void KappaMapSupplier<IdT, IndexT, DimT>::FillS2(Dims& dims, KappaMap& kappaMap)
 {
-    // filling with 3-sphere (an empty tetrahedron)
+    // filling with 2-sphere (an empty tetrahedron)
     //                index - label
     dims.push_back(Dim(0)); // 0 - [0]
     dims.push_back(Dim(0)); // 1 - [1]

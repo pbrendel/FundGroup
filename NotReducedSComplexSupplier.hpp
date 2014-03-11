@@ -10,21 +10,10 @@
 
 #include "SComplexFactory.h"
 
-#include "HapCWComplexExporter.h"
-
 template <typename Traits>
 NotReducedSComplexSupplier<Traits>::NotReducedSComplexSupplier(const char* filename)
 {
     _complex = SComplexFactory<InputSComplex>::Load(filename);
-
-    HapCWComplexExporter<InputSComplex> exporter;
-    exporter.CollectComplexData(_complex);
-    exporter.GenerateTrivialVectorField(_complex);
-    exporter.ExportData("export.txt");
-
-    // typedef ShaveAlgorithmFactory<InputSComplex> ShaveFactory;
-    // boost::shared_ptr<typename ShaveFactory::DefaultAlgorithm> shave = ShaveFactory().createDefault(*_complex);
-    // (*shave)();
 }
 
 template <typename Traits>
@@ -66,7 +55,8 @@ bool NotReducedSComplexSupplier<Traits>::GetCells(CellsByDim& cellsByDim,
         typename Cells::iterator itEnd = _2cells.end();
         for ( ; it != itEnd; ++it)
         {
-            _2Boundaries[*it] = GetBoundary(*it);
+            std::list<std::pair<Id, int> > bdList = GetOrdered2Boundary(_complex.get(), *it);
+            _2Boundaries[*it].assign(bdList.begin(), bdList.end());
         }
     }
     return cellsByDim.size() > 0;
@@ -92,6 +82,30 @@ NotReducedSComplexSupplier<Traits>::GetBoundary(const Id& cellId)
         assert(ci == -1 || ci == 1);
         boundary.push_back(std::pair<Id, int>(it->getId(), ci));
     }
+    return boundary;
+}
+
+template <typename Traits>
+template <typename ComplexType>
+std::list<std::pair<typename ComplexType::Id, int> >
+NotReducedSComplexSupplier<Traits>::GetOrdered2Boundary(ComplexType* complex,
+                                            const typename ComplexType::Id& cellId)
+{
+    typedef typename ComplexType::Id Id;
+    typedef typename ComplexType::Cell Cell;
+    typedef typename ComplexType::Iterators::BdCells BdCells;
+    Cell cell = (*complex)[cellId];
+    std::list<std::pair<Id, int> > boundary;
+    BdCells bdCells = complex->iterators().bdCells(cell);
+    typename BdCells::iterator it = bdCells.begin();
+    typename BdCells::iterator itEnd = bdCells.end();
+    for( ; it != itEnd; ++it)
+    {
+        int ci = complex->coincidenceIndex(cell, *it);
+        assert(ci != 0);
+        boundary.push_back(std::pair<Id, int>(it->getId(), ci));
+    }
+    HomologyHelpers<Traits>::Reorder2Boundary(complex, boundary);
     return boundary;
 }
 

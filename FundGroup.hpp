@@ -44,19 +44,17 @@ void FundGroup<ComplexSupplierType>::Compute()
     _complexSupplier->GetCells(_cellsByDim, _2Boundaries);
     _logger.End();
 
-    // std::cerr << "size: " << _cellsByDim[0].size() << " " << _cellsByDim[1].size() << " " << _cellsByDim[2].size() << std::endl;
-
     if (_cellsByDim[0].size() > 1)
     {
         _logger.Begin(FGLogger::Details, "creating spanning tree");
-	CreateSpanningTree();
+        CreateSpanningTree();
         _logger.End();
     }
     _logger.Begin(FGLogger::Details, "computing relators");
     ComputeRelators();
-    //SimplifyRelators();
+    SimplifyRelators();
     _logger.End();
-    PrintDebug();
+    //PrintDebug();
 }
 
 template <typename ComplexSupplierType>
@@ -120,8 +118,6 @@ void FundGroup<ComplexSupplierType>::CreateSpanningTree()
     }
     assert(verts.size() == _cellsByDim[0].size());
 
-    // std::cerr << "ST: " << _cellsByDim[1].size() << " " << _1cells.size() << " " << verts.size() << " " << edges.size() << std::endl;
-
     _cellsByDim[1].insert(_1cells.begin(), _1cells.end());
 
     // TODO!
@@ -132,13 +128,8 @@ void FundGroup<ComplexSupplierType>::CreateSpanningTree()
 template <typename ComplexSupplierType>
 void FundGroup<ComplexSupplierType>::ComputeRelators()
 {
-    int found = 0;
-    int sumSize = 0;
-
     typename std::map<Id, Chain>::iterator it = _2Boundaries.begin();
     typename std::map<Id, Chain>::iterator itEnd = _2Boundaries.end();
-
-    // std::cerr << "2 bound size: " << _2Boundaries.size() << std::endl;
 
     for ( ; it != itEnd; ++it)
     {
@@ -147,10 +138,6 @@ void FundGroup<ComplexSupplierType>::ComputeRelators()
         Chain boundary = it->second;
         typename Chain::iterator jt = boundary.begin();
         typename Chain::iterator jtEnd = boundary.end();
-
-        sumSize += boundary.size();
-
-        // std::cerr << "BD size: " << boundary.size() << std::endl;
 
         for ( ; jt != jtEnd; ++jt)
         {
@@ -163,7 +150,6 @@ void FundGroup<ComplexSupplierType>::ComputeRelators()
             if (edges.find(jt->first) == edges.end())
             {
                 r.push_back(RelatorComponent(jt->first, jt->second));
-                ++found;
             }
         }
         if (r.size() > 0)
@@ -171,9 +157,6 @@ void FundGroup<ComplexSupplierType>::ComputeRelators()
             _relators.push_back(r);
         }
     }
-
-    //std::cerr << "Found: " << found << std::endl;
-    //std::cerr << "sumSize: " << sumSize << std::endl;
 }
 
 template <typename ComplexSupplierType>
@@ -323,16 +306,12 @@ std::string FundGroup<ComplexSupplierType>::HapExpression() const
         output<<"g:=GeneratorsOfGroup(F);"<<std::endl;
         output<<"rels:=[];"<<std::endl;
 
-	//std::cerr << " _relators size: " << _relators.size() << std::endl;
-
         typename Relators::const_iterator it = _relators.begin();
         typename Relators::const_iterator itEnd = _relators.end();
         for ( ; it != itEnd; ++it)
         {
             Relator r = *it;
             int index = 0;
-
-	    //	std::cerr << " r size: " << r.size() << std::endl;
 
             typename Relator::iterator jt = r.begin();
             typename Relator::iterator jtEnd = r.end();

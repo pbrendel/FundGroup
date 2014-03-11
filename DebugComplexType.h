@@ -8,8 +8,8 @@
 
 enum DebugComplexType
 {
-    DCT_Sphere2,
-    DCT_Sphere3,
+    DCT_S1,
+    DCT_S2,
     DCT_Torus,
     DCT_Skeleton,
     DCT_Custom0,

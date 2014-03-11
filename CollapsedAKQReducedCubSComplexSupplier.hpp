@@ -94,7 +94,7 @@ void CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateAlgorithm()
 
 template <typename Traits>
 bool CollapsedAKQReducedCubSComplexSupplier<Traits>::GetCells(CellsByDim& cellsByDim,
-                                                  std::map<Cell,Chain>& _2Boundaries)
+                                                         std::map<Id, Chain>& _2Boundaries)
 {
     OutputSComplex* outputComplex = _algorithm->getStrategy()->getOutputComplex();
     int maxDim = static_cast<int>(outputComplex->getDim());
@@ -106,12 +106,12 @@ bool CollapsedAKQReducedCubSComplexSupplier<Traits>::GetCells(CellsByDim& cellsB
         typename DimCells::iterator itEnd = dimCells.end();
         for ( ; it != itEnd; ++it)
         {
-            cellsByDim[dim].insert(*it);
+            cellsByDim[dim].insert(it->getId());
         }
     }
 
     // if there are some 2-cells, take its (homotopic) boundaries
-    AKQHomotopicPaths<CollapsedAKQReducedCubSComplexSupplier<Traits> > homotopicPaths(_algorithm->getStrategy());
+    AKQHomotopicPaths<CollapsedAKQReducedCubSComplexSupplier<Traits> > homotopicPaths(this, _algorithm->getStrategy());
     _2Boundaries.clear();
     if (cellsByDim.size() > 2)
     {
@@ -129,9 +129,10 @@ bool CollapsedAKQReducedCubSComplexSupplier<Traits>::GetCells(CellsByDim& cellsB
 
 template <typename Traits>
 typename CollapsedAKQReducedCubSComplexSupplier<Traits>::Chain
-CollapsedAKQReducedCubSComplexSupplier<Traits>::GetBoundary(const Cell& cell)
+CollapsedAKQReducedCubSComplexSupplier<Traits>::GetBoundary(const Id& cellId)
 {
     OutputSComplex* outputComplex = _algorithm->getStrategy()->getOutputComplex();
+    Cell cell = (*outputComplex)[cellId];
     Chain boundary;
     BdCells bdCells = outputComplex->iterators().bdCells(cell);
     typename BdCells::iterator it = bdCells.begin();
@@ -140,7 +141,30 @@ CollapsedAKQReducedCubSComplexSupplier<Traits>::GetBoundary(const Cell& cell)
     {
         int ci = outputComplex->coincidenceIndex(cell, *it);
         assert(ci != 0);
-        boundary.push_back(std::pair<Cell, int>(*it, ci));
+        boundary.push_back(std::pair<Id, int>(it->getId(), ci));
+    }
+    return boundary;
+}
+
+template <typename Traits>
+template <typename ComplexType>
+std::list<std::pair<typename ComplexType::Id, int> >
+CollapsedAKQReducedCubSComplexSupplier<Traits>::GetOrdered2Boundary(ComplexType* complex,
+                                            const typename ComplexType::Id& cellId)
+{
+    typedef typename ComplexType::Id Id;
+    typedef typename ComplexType::Cell Cell;
+    typedef typename ComplexType::Iterators::BdCells BdCells;
+    Cell cell = (*complex)[cellId];
+    std::list<std::pair<Id, int> > boundary;
+    BdCells bdCells = complex->iterators().bdCells(cell);
+    typename BdCells::iterator it = bdCells.begin();
+    typename BdCells::iterator itEnd = bdCells.end();
+    for( ; it != itEnd; ++it)
+    {
+        int ci = complex->coincidenceIndex(cell, *it);
+        assert(ci != 0);
+        boundary.push_back(std::pair<Id, int>(it->getId(), ci));
     }
     return boundary;
 }
@@ -246,7 +270,7 @@ CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateCell(CubCellSetPtr cubCell
     _cellsMapByDim[dim][it] = cell;
     std::vector<BitCoordIterator> faces;
     std::vector<int> coefficients;
-    cubCellSet().getFaces(it, faces, coefficients);
+    cubCellSet().getFaces(it, faces, coefficients); //TODO!!! getOrderedFaces
     typename std::vector<BitCoordIterator>::iterator fIt = faces.begin();
     typename std::vector<BitCoordIterator>::iterator fItEnd = faces.end();
     std::vector<int>::iterator cIt = coefficients.begin();

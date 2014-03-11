@@ -12,28 +12,11 @@
 #include "SComplexFactory.h"
 
 #include "HomologyHelpers.h"
-#include "HapCWComplexExporter.h"
 
 template <typename Traits>
 AKQReducedSComplexSupplier<Traits>::AKQReducedSComplexSupplier(const char* filename)
 {
     _complex = SComplexFactory<InputSComplex>::Load(filename);
-
-
-    for ( int i = 0; i <= 3; i++)
-    {
-        int count = 0;
-        typename InputSComplex::ColoredIterators::Iterators::DimCells dimCells = _complex->iterators(1).dimCells(i);
-        typename InputSComplex::ColoredIterators::Iterators::DimCells::iterator it = dimCells.begin();
-        typename InputSComplex::ColoredIterators::Iterators::DimCells::iterator itEnd = dimCells.end();
-        for ( ; it != itEnd; ++it)
-        {
-            count++;
-        }
-        _logger.Log(FGLogger::Debug)<<"number of cells in dim "<<i<<" = "<<count<<std::endl;
-    }
-
-
     CreateAlgorithm();
 }
 
@@ -43,7 +26,6 @@ AKQReducedSComplexSupplier<Traits>::AKQReducedSComplexSupplier(DebugComplexType 
     _complex = SComplexFactory<InputSComplex>::Create(type);
     CreateAlgorithm();
 }
-
 
 template <typename Traits>
 AKQReducedSComplexSupplier<Traits>::AKQReducedSComplexSupplier(InputSComplexPtr inputSComplex)
@@ -55,23 +37,17 @@ AKQReducedSComplexSupplier<Traits>::AKQReducedSComplexSupplier(InputSComplexPtr 
 template <typename Traits>
 void AKQReducedSComplexSupplier<Traits>::CreateAlgorithm()
 {
-    HapCWComplexExporter<InputSComplex> exporter;
-    exporter.CollectComplexData(_complex);
-
     _logger.Begin(FGLogger::Details, "performing coreductions");
     _algorithm = AlgorithmPtr(new Algorithm(new Strategy(*_complex)));
-    //    _algorithm->setStoreReducedCells(_logger.PrintCoreducedCellsCount());
-    _logger.Log(FGLogger::Details) << "alg started" << std::endl;
+    _algorithm->setStoreReducedCells(_logger.PrintCoreducedCellsCount());
+    _logger.Log(FGLogger::Details) << "algorithm started" << std::endl;
     (*_algorithm)();
-    _logger.Log(FGLogger::Details) << "alg ended" << std::endl;
+    _logger.Log(FGLogger::Details) << "algorithm ended" << std::endl;
     if (_logger.PrintCoreducedCellsCount())
     {
-      //        _logger.Log(FGLogger::Details)<<"number of reduced pairs: "<<_algorithm->getReducedCells().size()<<std::endl;
-      //  _logger.Log(FGLogger::Details)<<"number of extracted cells: "<<_algorithm->getExtractedCells().size()<<std::endl;
+        _logger.Log(FGLogger::Details)<<"number of reduced pairs: "<<_algorithm->getReducedCells().size()<<std::endl;
+        _logger.Log(FGLogger::Details)<<"number of extracted cells: "<<_algorithm->getExtractedCells().size()<<std::endl;
     }
-
-    exporter.CollectVectorFieldData(_complex, _algorithm->getStrategy());
-    exporter.ExportData("export.txt");
 }
 
 template <typename Traits>
@@ -93,7 +69,7 @@ bool AKQReducedSComplexSupplier<Traits>::GetCells(CellsByDim& cellsByDim,
     }
 
     // if there are some 2-cells, take its boundaries
-    AKQHomotopicPaths<AKQReducedSComplexSupplier<Traits> > homotopicPaths(_algorithm->getStrategy());
+    AKQHomotopicPaths<AKQReducedSComplexSupplier<Traits> > homotopicPaths(this, _algorithm->getStrategy());
     _2Boundaries.clear();
     if (cellsByDim.size() > 2)
     {
@@ -125,6 +101,30 @@ AKQReducedSComplexSupplier<Traits>::GetBoundary(const Id& cellId)
         assert(ci != 0);
         boundary.push_back(std::pair<Id, int>(it->getId(), ci));
     }
+    return boundary;
+}
+
+template <typename Traits>
+template <typename ComplexType>
+std::list<std::pair<typename ComplexType::Id, int> >
+AKQReducedSComplexSupplier<Traits>::GetOrdered2Boundary(ComplexType* complex,
+                                            const typename ComplexType::Id& cellId)
+{
+    typedef typename ComplexType::Id Id;
+    typedef typename ComplexType::Cell Cell;
+    typedef typename ComplexType::Iterators::BdCells BdCells;
+    Cell cell = (*complex)[cellId];
+    std::list<std::pair<Id, int> > boundary;
+    BdCells bdCells = complex->iterators().bdCells(cell);
+    typename BdCells::iterator it = bdCells.begin();
+    typename BdCells::iterator itEnd = bdCells.end();
+    for( ; it != itEnd; ++it)
+    {
+        int ci = complex->coincidenceIndex(cell, *it);
+        assert(ci != 0);
+        boundary.push_back(std::pair<Id, int>(it->getId(), ci));
+    }
+    HomologyHelpers<Traits>::Reorder2Boundary(complex, boundary);
     return boundary;
 }
 

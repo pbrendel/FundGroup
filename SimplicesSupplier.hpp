@@ -44,11 +44,11 @@ void SimplicesSupplier<T>::Create(DebugComplexType type, Simplices& simplices)
     simplices.clear();
     switch (type)
     {
-        case DCT_Sphere2:
-            FillSphere2(simplices);
+        case DCT_S1:
+            FillS1(simplices);
             break;
-        case DCT_Sphere3:
-            FillSphere3(simplices);
+        case DCT_S2:
+            FillS2(simplices);
             break;
         case DCT_Torus:
             FillTorus(simplices);
@@ -65,9 +65,9 @@ void SimplicesSupplier<T>::Create(DebugComplexType type, Simplices& simplices)
 }
 
 template <typename T>
-void SimplicesSupplier<T>::FillSphere2(Simplices& simplices)
+void SimplicesSupplier<T>::FillS1(Simplices& simplices)
 {
-    // filling with 2-sphere (edges of a triangle)
+    // filling with 1-sphere (edges of a triangle)
     Id edges[] = { 1, 2, 1, 3, 2, 3 };
     int count = sizeof(edges) / (sizeof(int) * 2);
     for (int i = 0; i < count; i++)
@@ -78,9 +78,9 @@ void SimplicesSupplier<T>::FillSphere2(Simplices& simplices)
 }
 
 template <typename T>
-void SimplicesSupplier<T>::FillSphere3(Simplices& simplices)
+void SimplicesSupplier<T>::FillS2(Simplices& simplices)
 {
-    // filling with 3-sphere (an empty tetrahedron)
+    // filling with 2-sphere (an empty tetrahedron)
     Id edges[] = { 1, 2, 3, 1, 2, 4, 1, 3, 4, 2, 3, 4 };
     int count = sizeof(edges) / (sizeof(int) * 3);
     for (int i = 0; i < count; i++)

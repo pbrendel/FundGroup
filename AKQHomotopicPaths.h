@@ -12,11 +12,11 @@
 #include <boost/bimap.hpp>
 #include <redHom/algorithm/AKQStrategy.hpp>
 
-template <typename Traits>
+template <typename Supplier>
 class AKQHomotopicPaths
 {
-    typedef typename Traits::InputSComplex      InputSComplex;
-    typedef typename Traits::OutputSComplex     OutputSComplex;
+    typedef typename Supplier::InputSComplex    InputSComplex;
+    typedef typename Supplier::OutputSComplex   OutputSComplex;
 
 public:
     typedef typename InputSComplex::Id          InputCellId;
@@ -25,7 +25,7 @@ public:
     typedef typename OutputSComplex::Cell       OutputCell;
     typedef std::vector<std::pair<OutputCellId, int> > OutputChain;
 
-    AKQHomotopicPaths(Strategy *strategy);
+    AKQHomotopicPaths(Supplier *complexSupplier, Strategy *strategy);
 
     OutputChain GetHomotopicBoundary(const OutputCellId& cell);
 
@@ -48,6 +48,7 @@ private:
     void ReverseNegate(const Path& path, Path& outPath);
     void Negate(Path& path);
 
+    Supplier*       _complexSupplier;
     Strategy*       _strategy;
     InputSComplex*  _originalComplex;
     OutputSComplex* _outputComplex;

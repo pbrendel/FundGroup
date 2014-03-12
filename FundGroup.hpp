@@ -54,7 +54,7 @@ void FundGroup<ComplexSupplierType>::Compute()
     ComputeRelators();
     SimplifyRelators();
     _logger.End();
-    //PrintDebug();
+    PrintDebug();
 }
 
 template <typename ComplexSupplierType>
@@ -284,15 +284,26 @@ std::string FundGroup<ComplexSupplierType>::ToString()
 }
 
 template <typename ComplexSupplierType>
+void FundGroup<ComplexSupplierType>::ExportHapProgram(const char* filename) const
+{
+    std::ofstream output(filename);
+    if (!output.is_open())
+    {
+        return;
+    }
+    output << HapExpression() << std::endl;
+    output.close();
+}
+
+template <typename ComplexSupplierType>
 std::string FundGroup<ComplexSupplierType>::HapExpression() const
 {
-  std::ostringstream output;
+    std::ostringstream output;
 
     std::map<Id, int> symbols;
     {
         const Cells &_1cells = _cellsByDim[1];
         int c = 1;
-        int index = 0;
         typename Cells::const_iterator it = _1cells.begin();
         typename Cells::const_iterator itEnd = _1cells.end();
         for ( ; it != itEnd; ++it)
@@ -346,25 +357,50 @@ std::string FundGroup<ComplexSupplierType>::HapExpression() const
 template <typename ComplexSupplierType>
 std::string FundGroup<ComplexSupplierType>::HapFunctionBody() const
 {
-  std::ostringstream output;
-  output<<"local F,g, rels, w, G, P, R, L, K;" << std::endl;
-  output << HapExpression() << std::endl;
-  output << "return [K, R];;" << std::endl;
-
-  return output.str();
+    std::ostringstream output;
+    output<<"local F, g, rels, w, G, P, R, L, K;" <<std::endl;
+    output<<HapExpression()<<std::endl;
+    output<<"return [K, R];;"<<std::endl;
+    return output.str();
 }
 
 template <typename ComplexSupplierType>
-void FundGroup<ComplexSupplierType>::ExportHapProgram(const char* filename) const
+std::vector<int> FundGroup<ComplexSupplierType>::HapInterfaceVector() const
 {
-    std::ofstream output(filename);
-    if (!output.is_open())
+    std::vector<int> ret;
+
+    std::map<Id, int> symbols;
     {
-        return;
+        const Cells &_1cells = _cellsByDim[1];
+        ret.push_back(_1cells.size());
+        int c = 1;
+        typename Cells::const_iterator it = _1cells.begin();
+        typename Cells::const_iterator itEnd = _1cells.end();
+        for ( ; it != itEnd; ++it)
+        {
+            symbols[*it] = c++;
+        }
     }
 
-    output << HapExpression() << std::endl;
-    output.close();
+    {
+        ret.push_back(_relators.size());
+        typename Relators::const_iterator it = _relators.begin();
+        typename Relators::const_iterator itEnd = _relators.end();
+        for ( ; it != itEnd; ++it)
+        {
+            Relator r = *it;
+            ret.push_back(r.size());
+            typename Relator::iterator jt = r.begin();
+            typename Relator::iterator jtEnd = r.end();
+            for ( ; jt != jtEnd; ++jt)
+            {
+                ret.push_back(symbols[jt->first]);
+                ret.push_back(jt->second);
+            }
+        }
+    }
+
+    return ret;
 }
 
 template <typename ComplexSupplierType>

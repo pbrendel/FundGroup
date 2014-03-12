@@ -36,6 +36,7 @@ public:
     void ExportHapProgram(const char* filename) const;
     std::string HapFunctionBody() const;
     std::string HapExpression() const;
+    std::vector<int> HapInterfaceVector() const;
 
 private:
 

@@ -270,7 +270,14 @@ CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateCell(CubCellSetPtr cubCell
     _cellsMapByDim[dim][it] = cell;
     std::vector<BitCoordIterator> faces;
     std::vector<int> coefficients;
-    cubCellSet().getFaces(it, faces, coefficients); //TODO!!! getOrderedFaces
+    if (dim == 2) // hack to obtain proper order of 2boundary
+    {
+        cubCellSet().getOrdered2Faces(it, faces, coefficients);
+    }
+    else
+    {
+        cubCellSet().getFaces(it, faces, coefficients);
+    }
     typename std::vector<BitCoordIterator>::iterator fIt = faces.begin();
     typename std::vector<BitCoordIterator>::iterator fItEnd = faces.end();
     std::vector<int>::iterator cIt = coefficients.begin();
@@ -287,7 +294,7 @@ CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateCell(CubCellSetPtr cubCell
         {
             cell->_faces.push_back(_nullSetCell);
             //cell->_faces.push_back(_nullSetCell);
-            cell->_coefficients.push_back(1);
+            cell->_coefficients.push_back(0);
             //cell->_coefficients.push_back(-1);
         }
         else if (cell->_coefficients[0] == 1)
@@ -295,10 +302,12 @@ CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateCell(CubCellSetPtr cubCell
             cell->_faces.push_back(_nullSetCell);
             cell->_coefficients.push_back(-1);
         }
-        else
+        else // if (cell->_coefficients[0] == -1)
         {
-            cell->_faces.push_back(_nullSetCell);
-            cell->_coefficients.push_back(1);
+            cell->_faces.push_back(cell->_faces[0]);
+            cell->_coefficients.push_back(-1);
+            cell->_faces[0] = _nullSetCell;
+            cell->_coefficients[0] = 1;
         }
     }
     return cell;

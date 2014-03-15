@@ -135,31 +135,10 @@ void AKQReducedSComplexSupplier<Traits>::PrintDebug()
 
     OutputSComplex* outputComplex = _algorithm->getStrategy()->getOutputComplex();
     std::vector<int> betti = HomologyHelpers<Traits>::GetHomologySignature(outputComplex);
-
     _logger.Log(FGLogger::Debug)<<"homology signature:"<<std::endl;
     for (int i = 0; i < betti.size(); ++i)
     {
         _logger.Log(FGLogger::Debug)<<"H_"<<i<<" = Z^"<<betti[i]<<std::endl;
-    }
-
-    for (int dim = 0; dim <= 2; ++dim)
-    {
-        DimCells dimCells = outputComplex->iterators(1).dimCells(static_cast<Dim>(dim));
-        typename DimCells::iterator it = dimCells.begin();
-        typename DimCells::iterator itEnd = dimCells.end();
-        for ( ; it != itEnd; ++it)
-        {
-            Cell cell = *it;
-            _logger.Log(FGLogger::Debug)<< " Cell " << cell.getId() << " in dimension: " << cell.getDim() << std::endl;
-            BdCells bdCells = outputComplex->iterators(1).bdCells(cell);
-            typename BdCells::iterator it2 = bdCells.begin();
-            typename BdCells::iterator it2End = bdCells.end();
-            for ( ; it2 != it2End; ++it2)
-            {
-                int ci = outputComplex->coincidenceIndex(cell, *it2);
-                _logger.Log(FGLogger::Debug)<< "   bd " << it2->getId() << " ci: " << ci << std::endl;
-            }
-        }
     }
 }
 

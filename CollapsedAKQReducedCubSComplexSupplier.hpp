@@ -170,12 +170,6 @@ CollapsedAKQReducedCubSComplexSupplier<Traits>::GetOrdered2Boundary(ComplexType*
 }
 
 template <typename Traits>
-void CollapsedAKQReducedCubSComplexSupplier<Traits>::PrintDebug()
-{
-    _logger.Log(FGLogger::Debug)<<"homology signature:"<<std::endl<<_algorithm->getExtractedSignature()<<std::endl;
-}
-
-template <typename Traits>
 void CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateKappaMapFromQuotient(
                                                          CubCellSetPtr cubCellSet,
                                                          Dims& dims,
@@ -311,6 +305,20 @@ CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateCell(CubCellSetPtr cubCell
         }
     }
     return cell;
+}
+
+template <typename Traits>
+void CollapsedAKQReducedCubSComplexSupplier<Traits>::PrintDebug()
+{
+    _logger.Log(FGLogger::Debug)<<"extracted signature:"<<std::endl<<_algorithm->getExtractedSignature()<<std::endl;
+
+    OutputSComplex* outputComplex = _algorithm->getStrategy()->getOutputComplex();
+    std::vector<int> betti = HomologyHelpers<Traits>::GetHomologySignature(outputComplex);
+    _logger.Log(FGLogger::Debug)<<"homology signature:"<<std::endl;
+    for (int i = 0; i < betti.size(); ++i)
+    {
+        _logger.Log(FGLogger::Debug)<<"H_"<<i<<" = Z^"<<betti[i]<<std::endl;
+    }
 }
 
 #endif	/* COLLAPSEDAKQREDUCEDCUBSCOMPLEXSUPPLIER_HPP */

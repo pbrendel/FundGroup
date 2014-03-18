@@ -38,8 +38,9 @@ public:
     typedef std::vector<std::pair<Id, int> >    Chain;
 
     NotReducedSComplexSupplier(const char* filename);
-    NotReducedSComplexSupplier(InputSComplexPtr inputSComplex);
     NotReducedSComplexSupplier(DebugComplexType type);
+    NotReducedSComplexSupplier(InputSComplexPtr inputSComplex);
+    
     bool GetCells(CellsByDim& cellsByDim, std::map<Id, Chain>& _2Boundaries);
     Chain GetBoundary(const Id& cellId);
 

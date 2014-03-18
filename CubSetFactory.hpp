@@ -35,6 +35,68 @@ CubSetFactory<CubSetT>::Create(DebugComplexType type, bool shave)
 }
 
 template <typename CubSetT>
+template <typename CubCellSetPtr>
+typename CubSetFactory<CubSetT>::CubSetPtr
+CubSetFactory<CubSetT>::ConvertCubCellSet(CubCellSetPtr cubCellSet, bool shave)
+{
+    int maxDim = cubCellSet().embDim();
+    assert(maxDim == DIM);
+
+    int dimensions[maxDim];
+    int tmpCoords[maxDim];
+    int coords[maxDim];
+    int totalCount = 1;
+    for (int dim = 0; dim < maxDim; dim++)
+    {
+        // CubCellSet full cubes are stored at position
+        // [2 * x_i + 1, ... ] where [x_i, ... ] are its actual coords
+        int dimSize = (cubCellSet().getUnpaddedWidth(dim) - 1) / 2;
+        totalCount *= dimSize;
+        dimensions[dim] = dimSize;
+        coords[dim] = 0;
+        tmpCoords[dim] = 1;
+    }
+
+    CubSetPtr cubSet = CubSetPtr(new CubSet(dimensions));
+
+    typedef typename CubSet::BitIterator Iterator;
+    Iterator srcIt = Iterator(cubCellSet(), tmpCoords);
+    Iterator dstIt = Iterator(cubSet(), coords);
+
+    for (int i = 0; i < totalCount; i++)
+    {
+        // copy bit
+        if (srcIt.getBit())
+        {
+            dstIt.setBit();
+        }
+
+        // increment coord
+        int dim = 0;
+        bool ok = false;
+        while (!ok && dim < maxDim)
+        {
+            coords[dim]++;
+            srcIt.incInDir(dim, 2);
+            dstIt.incInDir(dim);
+            if (coords[dim] < dimensions[dim])
+            {
+                ok = true;
+            }
+            else
+            {
+                srcIt.decInDir(dim, dimensions[dim] * 2);
+                dstIt.decInDir(dim, dimensions[dim]);
+                coords[dim] = 0;
+                dim++;
+            }
+        }
+    }
+
+    return cubSet;
+}
+
+template <typename CubSetT>
 typename CubSetFactory<CubSetT>::CubSetPtr
 CubSetFactory<CubSetT>::Create(Cubes& cubes, Bounds& bounds, bool shave)
 {

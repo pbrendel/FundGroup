@@ -29,6 +29,16 @@ CollapsedAKQReducedCubSComplexSupplier<Traits>::CollapsedAKQReducedCubSComplexSu
 }
 
 template <typename Traits>
+CollapsedAKQReducedCubSComplexSupplier<Traits>::CollapsedAKQReducedCubSComplexSupplier(CubSComplexPtr cubSComplex)
+{
+    _logger.Begin(FGLogger::Details, "converting CubCellSet -> CubSet");
+    CubSetPtr cubSet = CubSetFactory<CubSet>::ConvertCubCellSet(cubSComplex->getCubCellSet(), true);
+    _logger.End();
+    CreateComplex(cubSet);
+    CreateAlgorithm();
+}
+
+template <typename Traits>
 void CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateComplex(CubSetPtr cubSet)
 {
     _logger.Begin(FGLogger::Details, "computing acyclic subspace");

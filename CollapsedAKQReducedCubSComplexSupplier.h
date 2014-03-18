@@ -24,6 +24,9 @@ public:
     typedef typename Traits::GeneralSComplexType    InputSComplex;
     typedef typename Traits::GeneralSComplexType    OutputSComplex;
 
+    typedef typename Traits::SComplexType           CubSComplex;
+    typedef boost::shared_ptr<CubSComplex>          CubSComplexPtr;
+
 private:
 
     typedef typename Traits::CubCoordType       Coord;
@@ -62,6 +65,8 @@ public:
 
     CollapsedAKQReducedCubSComplexSupplier(const char* filename);
     CollapsedAKQReducedCubSComplexSupplier(DebugComplexType type);
+    CollapsedAKQReducedCubSComplexSupplier(CubSComplexPtr cubSComplex);
+
     bool GetCells(CellsByDim& cellsByDim, std::map<Id, Chain>& _2Boundaries);
     Chain GetBoundary(const Id& cellId);
 

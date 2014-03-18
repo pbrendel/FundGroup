@@ -47,8 +47,9 @@ public:
     typedef std::vector<std::pair<Id, int> >    Chain;
 
     AKQReducedSComplexSupplier(const char* filename);
-    AKQReducedSComplexSupplier(InputSComplexPtr inputSComplex);
     AKQReducedSComplexSupplier(DebugComplexType type);
+    AKQReducedSComplexSupplier(InputSComplexPtr inputSComplex);
+    
     bool GetCells(CellsByDim& cellsByDim, std::map<Id, Chain>& _2Boundaries);
     Chain GetBoundary(const Id& cellId);
 

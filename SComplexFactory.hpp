@@ -42,7 +42,7 @@ SComplexFactory<CubSComplex<DIM> >::Create(CubCellSetPtr cubCellSet)
 {
     FGLogger logger;
     logger.Begin(FGLogger::Details, "creating SComplex");
-    SComplexPtr complex = SComplexPtr(new SComplexType(cubCellSet));
+    SComplexPtr complex = SComplexPtr(new SComplexType(cubCellSet, false));
     logger.End();
 
     return complex;
@@ -58,7 +58,7 @@ SComplexFactory<CubSComplex<DIM> >::Create(CubSetPtr cubSet)
     logger.End();
 
     logger.Begin(FGLogger::Details, "creating SComplex");
-    SComplexPtr complex = SComplexPtr(new SComplexType(cubCellSet));
+    SComplexPtr complex = SComplexPtr(new SComplexType(cubCellSet, false));
     logger.End();
 
     return complex;

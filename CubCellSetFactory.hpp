@@ -58,7 +58,7 @@ CubCellSetFactory<CubCellSetT>::Create(Cubes& cubes, Bounds& bounds, bool shave)
         for (size_t j = 0; j < DIM; j++)
         {
             // recalculating into RedHom CubCellSet internal format
-            cube[j] = 2 * c[j] - bounds[j]._min + 1;
+            cube[j] = 2 * (c[j] - bounds[j]._min) + 1;
         }
         cubCellSet().insert(&cube[0]);
     }

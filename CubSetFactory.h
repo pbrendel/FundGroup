@@ -24,6 +24,9 @@ public:
     static CubSetPtr Load(const char* filename, bool shave);
     static CubSetPtr Create(DebugComplexType type, bool shave);
 
+    template <typename CubCellSetPtr>
+    static CubSetPtr ConvertCubCellSet(CubCellSetPtr cubCellSet, bool shave);
+
 private:
 
     typedef typename CubesSupplier<Coord, DIM>::Cube    Cube;

@@ -40,14 +40,14 @@ public:
 
     void Begin(Level level)
     {
-        _timers.push_back(time(0));
+        _timers.push_back(clock());
     }
 
     void Begin(Level level, const std::string& msg)
     {
         Log(level)<<msg<<std::endl;
         _levels.push_back(level);
-        _timers.push_back(time(0));
+        _timers.push_back(clock());
     }
 
     int End()
@@ -55,10 +55,11 @@ public:
         assert(_levels.size() > 0);
         assert(_levels.size() == _timers.size());
         Level level = _levels.back();
-        int t = static_cast<int>(time(0) - _timers.back());
+        int t = static_cast<int>(clock() - _timers.back());
+        t = t * 1000 / CLOCKS_PER_SEC;
         _levels.pop_back();
         _timers.pop_back();
-        Log(level)<<"finished in "<<t<<" seconds"<<std::endl;
+        Log(level)<<"finished in "<<t<<" ms"<<std::endl;
         return t;
     }
 
@@ -67,10 +68,11 @@ public:
         assert(_levels.size() > 0);
         assert(_levels.size() == _timers.size());
         Level level = _levels.back();
-        int t = static_cast<int>(time(0) - _timers.back());
+        int t = static_cast<int>(clock() - _timers.back());
+        t = t * 1000 / CLOCKS_PER_SEC;
         _levels.pop_back();
         _timers.pop_back();
-        Log(level)<<msg<<" in "<<t<<" seconds"<<std::endl;
+        Log(level)<<msg<<" in "<<t<<" ms"<<std::endl;
         return t;
     }
 
@@ -97,7 +99,7 @@ private:
 
     Level                _logLevel;
     std::vector<Level>   _levels;
-    std::vector<time_t>  _timers;
+    std::vector<clock_t> _timers;
     boost::iostreams::stream<boost::iostreams::null_sink> _nullOstream;
 
 };

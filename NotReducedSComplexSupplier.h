@@ -26,8 +26,8 @@ private:
     typedef typename Traits::IntType            Int;
 
     typedef typename OutputSComplex::Dim        Dim;
-    typedef typename OutputSComplex::ColoredIterators::Iterators::DimCells DimCells;
-    typedef typename OutputSComplex::ColoredIterators::Iterators::BdCells  BdCells;
+    typedef typename OutputSComplex::ColoredIterators::DimCells DimCells;
+    typedef typename OutputSComplex::ColoredIterators::BdCells  BdCells;
 
 public:
 

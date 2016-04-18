@@ -10,7 +10,8 @@
 #include <set>
 #include <vector>
 #include <boost/shared_ptr.hpp>
-#include <redHom/algorithm/Coreduction.hpp>
+#include <capd/complex/Coreduction.h>
+#include <capd/complex/AKQStrategy.hpp>
 
 #include "DebugComplexType.h"
 #include "FGLogger.h"
@@ -20,22 +21,22 @@ class AKQReducedSComplexSupplier
 {
 public:
 
-    typedef typename Traits::SComplexType       InputSComplex;
-    typedef typename Traits::GeneralSComplexType OutputSComplex;
+    typedef typename Traits::SComplexType           InputSComplex;
+    typedef typename Traits::GeneralSComplexType    OutputSComplex;
+    typedef typename Traits::ScalarType             Scalar;
 
 private:
 
     typedef boost::shared_ptr<InputSComplex>    InputSComplexPtr;
-    typedef typename Traits::ScalarType         Scalar;
     typedef typename Traits::IntType            Int;
 
     typedef typename OutputSComplex::Dim        Dim;
-    typedef typename OutputSComplex::ColoredIterators::Iterators::DimCells DimCells;
-    typedef typename OutputSComplex::ColoredIterators::Iterators::BdCells  BdCells;
+    typedef typename OutputSComplex::ColoredIterators::DimCells DimCells;
+    typedef typename OutputSComplex::ColoredIterators::BdCells  BdCells;
 
-    typedef AKQReduceStrategy<InputSComplex>            Strategy;
-    typedef CoreductionAlgorithm<Strategy, Scalar, Int> Algorithm;
-    typedef boost::shared_ptr<Algorithm>                AlgorithmPtr;
+    typedef capd::complex::AKQReduceStrategy<InputSComplex, OutputSComplex, Scalar> Strategy;
+    typedef capd::complex::Coreduction<Strategy, Scalar, Int> Algorithm;
+    typedef boost::shared_ptr<Algorithm>        AlgorithmPtr;
 
 public:
 
@@ -49,7 +50,7 @@ public:
     AKQReducedSComplexSupplier(const char* filename);
     AKQReducedSComplexSupplier(DebugComplexType type);
     AKQReducedSComplexSupplier(InputSComplexPtr inputSComplex);
-    
+
     bool GetCells(CellsByDim& cellsByDim, std::map<Id, Chain>& _2Boundaries);
     Chain GetBoundary(const Id& cellId);
 

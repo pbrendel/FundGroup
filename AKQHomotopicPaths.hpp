@@ -25,9 +25,9 @@ template <typename Supplier>
 void AKQHomotopicPaths<Supplier>::ComputeAcesMap()
 {
     OutputCellId id = OutputCellId(0);
-    BOOST_FOREACH(InputCell ace, _strategy->aces)
+    BOOST_FOREACH(InputCellId ace, _strategy->aces)
     {
-        _acesMap.insert(typename AcesMap::value_type(ace.getId(), id++));
+        _acesMap.insert(typename AcesMap::value_type(ace, id++));
     }
 }
 
@@ -154,9 +154,6 @@ AKQHomotopicPaths<Supplier>::GetQueenHomotopicPath(InputCellId cellId)
         return hpIt;
     }
 
-    // first we need to take KING cell
-    InputCell* kingCell = _strategy->kerKing[cellId];
-
     Path prevCells;
     Path nextCells;
     Path* currentCells = &prevCells;
@@ -164,7 +161,7 @@ AKQHomotopicPaths<Supplier>::GetQueenHomotopicPath(InputCellId cellId)
 
     // then, we take a boundary of KING cell and compute
     // alternative path for traversing given QUEEN cell
-    Path boundary = _complexSupplier->GetOrdered2Boundary(_originalComplex, kingCell->getId());
+    Path boundary = _complexSupplier->GetOrdered2Boundary(_originalComplex, _strategy->kerKing[cellId]);
     typename Path::iterator it = boundary.begin();
     typename Path::iterator itEnd = boundary.end();
     for ( ; it != itEnd; ++it)

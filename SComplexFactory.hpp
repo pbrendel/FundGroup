@@ -6,9 +6,9 @@
 #ifndef SCOMPLEXFACTORY_HPP
 #define	SCOMPLEXFACTORY_HPP
 
-#include <redHom/complex/scomplex/SComplexReader.hpp>
-#include "SComplexFactory.h"
+#include <capd/complex/SComplexReader.hpp>
 
+#include "SComplexFactory.h"
 #include "CubSetFactory.h"
 #include "CubCellSetFactory.h"
 #include "KappaMapSupplier.h"

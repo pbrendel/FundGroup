@@ -6,12 +6,17 @@
 #ifndef SCOMPLEXFACTORY_H
 #define	SCOMPLEXFACTORY_H
 
+#include <capd/complex/CubSComplex.h>
+#include <capd/complex/SimplexSComplex.hpp>
+#include <capd/complex/SComplex.h>
+#include <capd/complex/SComplexDefaultTraits.h>
+
+using namespace  capd::complex;
+
 #include <boost/shared_ptr.hpp>
 
 #include "DebugComplexType.h"
 
-#include <redHom/complex/cubical/CubSComplex.hpp>
-#include <redHom/complex/simplicial/SimplexSComplex.hpp>
 
 template <typename SComplexType>
 class SComplexFactory

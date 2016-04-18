@@ -8,9 +8,7 @@
 
 #include <list>
 #include <vector>
-
-#include <redHom/complex/cubical/CubSComplex.hpp>
-#include <redHom/complex/scomplex/SComplex.hpp>
+#include <capd/complex/CubCellComplex.h>
 
 template <typename Traits>
 class HomologyHelpers
@@ -32,9 +30,14 @@ public:
     static void Reorder2Boundary(CubSComplex<DIM>*,
                     std::list<std::pair<typename CubSComplex<DIM>::Id, int> > &boundary);
 
+
+  template <typename T>
+  static void Reorder2Boundary(CubCellComplex<T>* complex,
+                               std::list<std::pair<typename CubCellComplex<T>::Id, int> >& boundary);
+
 };
 
 #include "HomologyHelpers.hpp"
 
-#endif	/* HOMOLOGYHELPERS_H */
 
+#endif	/* HOMOLOGYHELPERS_H */

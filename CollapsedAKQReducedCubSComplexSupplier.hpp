@@ -11,6 +11,7 @@
 #include "AKQHomotopicPaths.h"
 #include "CubSetFactory.h"
 #include "SComplexFactory.h"
+#include <capd/cubSet/CubSetT.hpp>
 
 template <typename Traits>
 CollapsedAKQReducedCubSComplexSupplier<Traits>::CollapsedAKQReducedCubSComplexSupplier(const char* filename)
@@ -92,13 +93,12 @@ void CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateAlgorithm()
 {
     _logger.Begin(FGLogger::Details, "performing coreductions");
     _algorithm = AlgorithmPtr(new Algorithm(new Strategy(*_complex)));
-    _algorithm->setStoreReducedCells(_logger.PrintCoreducedCellsCount());
-    (*_algorithm)();
+    size_t reducedCount = (*_algorithm)();
     _logger.End("coreductions finished");
     if (_logger.PrintCoreducedCellsCount())
     {
-        _logger.Log(FGLogger::Details)<<"number of reduced pairs: "<<_algorithm->getReducedCells().size()<<std::endl;
-        _logger.Log(FGLogger::Details)<<"number of extracted cells: "<<_algorithm->getExtractedCells().size()<<std::endl;
+        _logger.Log(FGLogger::Details)<<"number of reduced pairs: "<<reducedCount<<std::endl;
+        _logger.Log(FGLogger::Details)<<"number of extracted cells: "<<_algorithm->getExtractedSignature().size()<<std::endl;
     }
 }
 
@@ -332,4 +332,3 @@ void CollapsedAKQReducedCubSComplexSupplier<Traits>::PrintDebug()
 }
 
 #endif	/* COLLAPSEDAKQREDUCEDCUBSCOMPLEXSUPPLIER_HPP */
-

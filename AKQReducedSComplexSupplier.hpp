@@ -39,14 +39,13 @@ void AKQReducedSComplexSupplier<Traits>::CreateAlgorithm()
 {
     _logger.Begin(FGLogger::Details, "performing coreductions");
     _algorithm = AlgorithmPtr(new Algorithm(new Strategy(*_complex)));
-    _algorithm->setStoreReducedCells(_logger.PrintCoreducedCellsCount());
     _logger.Log(FGLogger::Details) << "algorithm started" << std::endl;
-    (*_algorithm)();
+    size_t reducedCount = (*_algorithm)();
     _logger.Log(FGLogger::Details) << "algorithm ended" << std::endl;
     if (_logger.PrintCoreducedCellsCount())
     {
-        _logger.Log(FGLogger::Details)<<"number of reduced pairs: "<<_algorithm->getReducedCells().size()<<std::endl;
-        _logger.Log(FGLogger::Details)<<"number of extracted cells: "<<_algorithm->getExtractedCells().size()<<std::endl;
+        _logger.Log(FGLogger::Details)<<"number of reduced pairs: "<<reducedCount<<std::endl;
+        _logger.Log(FGLogger::Details)<<"number of extracted cells: "<<_algorithm->getExtractedSignature().size()<<std::endl;
     }
 }
 
@@ -56,7 +55,7 @@ bool AKQReducedSComplexSupplier<Traits>::GetCells(CellsByDim& cellsByDim,
 {
     OutputSComplex* outputComplex = _algorithm->getStrategy()->getOutputComplex();
     int maxDim = static_cast<int>(outputComplex->getDim());
-    cellsByDim.resize(maxDim + 1);
+    cellsByDim.resize(std::max(3, maxDim + 1)); //always dim 0, 1, 2
     for (int dim = 0; dim <= maxDim; dim++)
     {
         DimCells dimCells = outputComplex->iterators(1).dimCells(static_cast<Dim>(dim));
@@ -136,11 +135,10 @@ void AKQReducedSComplexSupplier<Traits>::PrintDebug()
     OutputSComplex* outputComplex = _algorithm->getStrategy()->getOutputComplex();
     std::vector<int> betti = HomologyHelpers<Traits>::GetHomologySignature(outputComplex);
     _logger.Log(FGLogger::Debug)<<"homology signature:"<<std::endl;
-    for (int i = 0; i < betti.size(); ++i)
+    for (size_t i = 0; i < betti.size(); ++i)
     {
         _logger.Log(FGLogger::Debug)<<"H_"<<i<<" = Z^"<<betti[i]<<std::endl;
     }
 }
 
 #endif	/* AKQREDUCEDSCOMPLEXSUPPLIER_HPP */
-

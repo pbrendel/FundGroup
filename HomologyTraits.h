@@ -7,8 +7,8 @@
 #define	HOMOLOGYTRAITS_HPP
 
 #include <capd/homAlgebra/ChainContainer.h>
-#include <redHom/complex/cubical/CubSComplex.hpp>
-#include <redHom/complex/simplicial/SimplexSComplex.hpp>
+#include <capd/complex/CubSComplex.hpp>
+#include <capd/complex/SimplexSComplex.hpp>
 
 class DefaultHomologyTraits
 {
@@ -51,4 +51,3 @@ public:
 };
 
 #endif	/* HOMOLOGYTRAITS_HPP */
-

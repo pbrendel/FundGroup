@@ -3,7 +3,7 @@
  * Author: Piotr Brendel
  */
 
-#define FGLOGGER_LEVEL Details
+#define FGLOGGER_LEVEL Debug
 
 #include "AKQReducedSComplexSupplier.h"
 #include "NotReducedSComplexSupplier.h"
@@ -17,11 +17,15 @@ int main(int argc, char** argv)
 {
     FGLogger logger;
     logger.Begin(FGLogger::Output, "computing for cubes");
+
+    //FundGroup<AKQReducedSComplexSupplier<HomologyTraits<boost::mpl::front<GeneralizedComplexes>::type> > > G(argv[1]);
+
     //FundGroup<AKQReducedSComplexSupplier<SComplexHomology> > G(argv[1]);
-    FundGroup<NotReducedSComplexSupplier<CubicalHomology<3> > > G(argv[1]);
-    //FundGroup<CollapsedAKQReducedCubSComplexSupplier<CubicalHomology<3> > > G(argv[1]);
+    //FundGroup<NotReducedSComplexSupplier<CubicalHomology<2> > > G(argv[1]);
+    // FundGroup<CollapsedAKQReducedCubSComplexSupplier<CubicalHomology<2> > > G(argv[1]);
+    FundGroup<AKQReducedSComplexSupplier<SimplicialHomology> > G(argv[1]);
     logger.Log(FGLogger::Output)<<G<<std::endl;
-    G.ExportHapProgram("fundgroup.g");
+    //G.ExportHapProgram("fundgroup.g");
     logger.End();
 
     //FundGroup<AKQReducedSComplexSupplier<SComplexHomology> > g1(DCT_S1);

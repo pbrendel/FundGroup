@@ -29,10 +29,10 @@ private:
 
     typedef typename ComplexType::Cell      Cell;
     typedef typename ComplexType::Iterators Iterators;
-    typedef typename Iterators::AllCells    AllCells;
-    typedef typename Iterators::DimCells    DimCells;
-    typedef typename Iterators::BdCells     BdCells;
-    typedef typename Iterators::CbdCells    CbdCells;
+    typedef Iterators::AllCells    AllCells;
+    typedef Iterators::DimCells    DimCells;
+    typedef Iterators::BdCells     BdCells;
+    typedef Iterators::CbdCells    CbdCells;
     typedef typename ComplexType::Id        CellId;
     typedef typename ComplexType::Dim       Dim;
 

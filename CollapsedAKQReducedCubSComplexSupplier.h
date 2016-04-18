@@ -10,8 +10,7 @@
 #include <set>
 #include <vector>
 #include <boost/shared_ptr.hpp>
-#include <redHom/algorithm/Coreduction.hpp>
-#include <redHom/complex/scomplex/SComplex.hpp>
+#include <capd/complex/Coreduction.h>
 
 #include "DebugComplexType.h"
 #include "FGLogger.h"
@@ -27,20 +26,21 @@ public:
     typedef typename Traits::SComplexType           CubSComplex;
     typedef boost::shared_ptr<CubSComplex>          CubSComplexPtr;
 
+    typedef typename Traits::ScalarType             Scalar;
+
 private:
 
-    typedef typename Traits::CubCoordType       Coord;
-    typedef typename Traits::CubSetType         CubSet;
-    typedef typename Traits::CubSetPtrType      CubSetPtr;
-    typedef typename Traits::CubCellSetType     CubCellSet;
-    typedef typename Traits::CubCellSetPtrType  CubCellSetPtr;
+    typedef typename Traits::CubCoordType           Coord;
+    typedef typename Traits::CubSetType             CubSet;
+    typedef typename Traits::CubSetPtrType          CubSetPtr;
+    typedef typename Traits::CubCellSetType         CubCellSet;
+    typedef typename Traits::CubCellSetPtrType      CubCellSetPtr;
     enum
     {
         DIM = Traits::DIM,
     };
 
     typedef boost::shared_ptr<InputSComplex>        InputSComplexPtr;
-    typedef typename Traits::ScalarType             Scalar;
     typedef typename Traits::IntType                Int;
 
     typedef typename InputSComplex::Dim             Dim;
@@ -50,9 +50,9 @@ private:
     typedef typename OutputSComplex::Iterators::DimCells DimCells;
     typedef typename OutputSComplex::Iterators::BdCells  BdCells;
 
-    typedef AKQReduceStrategy<InputSComplex>            Strategy;
-    typedef CoreductionAlgorithm<Strategy, Scalar, Int> Algorithm;
-    typedef boost::shared_ptr<Algorithm>                AlgorithmPtr;
+    typedef AKQReduceStrategy<InputSComplex, OutputSComplex, Scalar> Strategy;
+    typedef Coreduction<Strategy, Scalar, Int>      Algorithm;
+    typedef boost::shared_ptr<Algorithm>            AlgorithmPtr;
 
 public:
 
@@ -118,4 +118,3 @@ private:
 #include "CollapsedAKQReducedCubSComplexSupplier.hpp"
 
 #endif	/* COLLAPSEDAKQREDUCEDCUBSCOMPLEXSUPPLIER_H */
-

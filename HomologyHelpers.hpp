@@ -8,26 +8,23 @@
 
 #include "HomologyHelpers.h"
 
-#include <capd/complex/ConvertToRFC.h>
+#include <capd/complex/BettiNumbers.hpp>
 
 template <typename Traits>
 template <typename SComplexType>
 std::vector<int> HomologyHelpers<Traits>::GetHomologySignature(SComplexType* complex)
 {
-    using namespace capd::redHom;
+    using namespace capd::complex;
 
     typedef typename Traits::ScalarType         Scalar;
     typedef typename Traits::IntType            Int;
-    typedef FreeModule<typename SComplexType::Id, capd::vectalg::Matrix<Scalar, 0, 0>, Int> FreeModuleType;
-    typedef ReducibleFreeChainComplex<FreeModuleType> ReducibleFreeChainComplexType;
 
-    ConvertToRFC<SComplexType, Scalar> rfcBuilder(*complex);
-    CRef<ReducibleFreeChainComplexType> RFCComplexCR = rfcBuilder.template build<ReducibleFreeChainComplexType>();
-    CRef<HomologySignature<Scalar, Int> > homSignCR = HomAlgFunctors<FreeModuleType>::homSignViaAR_Random(RFCComplexCR);
-    std::vector<Scalar> betti = homSignCR().ranks();
+    typedef BettiNumbers<SComplexType, Scalar, Int> BettiNumbersAlg;
+    BettiNumbersAlg alg(*complex);
+    std::vector<Int> betti = alg();
 
     std::vector<int> res;
-    for (typename std::vector<Scalar>::iterator it = betti.begin(); it != betti.end(); ++it)
+    for (typename std::vector<Int>::iterator it = betti.begin(); it != betti.end(); ++it)
     {
         res.push_back(static_cast<int>(*it));
     }
@@ -134,5 +131,26 @@ void HomologyHelpers<Traits>::Reorder2Boundary(CubSComplex<DIM>* complex,
     boundary.insert(it, cell);
 }
 
-#endif	/* HOMOLOGYHELPERS_HPP */
+template <typename Traits>
+template <typename T>
+void HomologyHelpers<Traits>::Reorder2Boundary(CubCellComplex<T>* complex,
+        std::list<std::pair<typename CubCellComplex<T>::Id, int> >& boundary)
+{
+    typedef typename CubCellComplex<T>::Id Id;
+    typedef std::pair<Id, int> Cell;
+    typedef std::list<Cell> CellsList;
 
+    // reordering (1, 3, 4, 2) -> (1, 2, 3, 4)
+    assert(boundary.size() == 4);
+    // remember last cell and remove ir
+    typename CellsList::iterator it = boundary.end();
+    it--;
+    Cell cell = *it;
+    boundary.erase(it);
+    // skip first cell and insert remembered cell at second position
+    it = boundary.begin();
+    it++;
+    boundary.insert(it, cell);
+}
+
+#endif	/* HOMOLOGYHELPERS_HPP */

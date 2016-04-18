@@ -10,18 +10,19 @@
 #include <map>
 #include <vector>
 #include <boost/bimap.hpp>
-#include <redHom/algorithm/AKQStrategy.hpp>
+#include <capd/complex/AKQStrategy.hpp>
 
 template <typename Supplier>
 class AKQHomotopicPaths
 {
     typedef typename Supplier::InputSComplex    InputSComplex;
     typedef typename Supplier::OutputSComplex   OutputSComplex;
+    typedef typename Supplier::Scalar           Scalar;
 
 public:
     typedef typename InputSComplex::Id          InputCellId;
     typedef typename OutputSComplex::Id         OutputCellId;
-    typedef AKQReduceStrategy<InputSComplex>    Strategy;
+    typedef capd::complex::AKQReduceStrategy<InputSComplex, OutputSComplex, Scalar>    Strategy;
     typedef typename OutputSComplex::Cell       OutputCell;
     typedef std::vector<std::pair<OutputCellId, int> > OutputChain;
 

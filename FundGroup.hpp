@@ -14,7 +14,6 @@
 #include <sstream>
 #include <vector>
 
-#include <redHom/algorithm/Shave.hpp>
 
 template <typename ComplexSupplierType>
 FundGroup<ComplexSupplierType>::FundGroup(const char *filename)
@@ -111,7 +110,7 @@ void FundGroup<ComplexSupplierType>::CreateSpanningTree()
             }
             else
             {
-                _logger.Log(FGLogger::Assert)<<"boundary.size =  "<<boundary.size()<<std::endl;
+              CAPD_DEBUG_TMPL("boundary.size =  "<<boundary.size());
                 assert(false);
             }
         }

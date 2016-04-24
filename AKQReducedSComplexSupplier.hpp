@@ -10,7 +10,6 @@
 
 #include "AKQHomotopicPaths.h"
 #include "SComplexFactory.h"
-
 #include "HomologyHelpers.h"
 
 template <typename Traits>

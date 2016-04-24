@@ -15,8 +15,23 @@
 
 #include "FGLogger.h"
 
+class IFundGroup
+{
+public:
+
+    virtual ~IFundGroup() { }
+
+    friend std::ostream& operator<<(std::ostream &str, IFundGroup& fg)
+    {
+        str<<fg.ToString();
+        return str;
+    }
+
+    virtual std::string ToString() = 0;
+};
+
 template <typename ComplexSupplierType>
-class FundGroup
+class FundGroup : public IFundGroup
 {
 public:
     typedef ComplexSupplierType                         ComplexSupplier;
@@ -26,12 +41,6 @@ public:
     FundGroup(const char *filename);
     FundGroup(ComplexSupplierPtr complexSupplier);
     FundGroup(DebugComplexType debugComplexType);
-
-    friend std::ostream& operator<<(std::ostream &str, FundGroup& g)
-    {
-        str<<g.ToString();
-        return str;
-    }
 
     void ExportHapProgram(const char* filename) const;
     std::string HapFunctionBody() const;
@@ -60,7 +69,7 @@ private:
     void CreateSpanningTree();
     void ComputeRelators();
     void SimplifyRelators();
-    std::string ToString();
+    virtual std::string ToString() override;
 
     void PrintDebug();
 

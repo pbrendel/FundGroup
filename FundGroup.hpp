@@ -14,7 +14,6 @@
 #include <sstream>
 #include <vector>
 
-
 template <typename ComplexSupplierType>
 FundGroup<ComplexSupplierType>::FundGroup(const char *filename)
 {
@@ -244,7 +243,7 @@ std::string FundGroup<ComplexSupplierType>::ToString()
         for ( ; it != itEnd; ++it)
         {
             symbols[*it] = c;
-            str<<c++;
+            str<<"f"<<c++;
             if (++index < _1cells.size())
             {
                 str<<", ";

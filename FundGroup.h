@@ -27,6 +27,7 @@ public:
         return str;
     }
 
+    virtual void ExportHapProgram(const char* filename) const = 0;
     virtual std::string ToString() = 0;
 };
 
@@ -42,7 +43,7 @@ public:
     FundGroup(ComplexSupplierPtr complexSupplier);
     FundGroup(DebugComplexType debugComplexType);
 
-    void ExportHapProgram(const char* filename) const;
+    void ExportHapProgram(const char* filename) const override;
     std::string HapFunctionBody() const;
     std::string HapExpression() const;
     std::vector<int> HapInterfaceVector() const;

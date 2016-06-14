@@ -35,6 +35,7 @@ private:
     static ComplexType      complexType;
     static ReductionType    reductionType;
     static std::string      inputFilename;
+    static std::string      hapProgramFilename;
 
     static void PrintHelp();
     static void ProcessArgument(std::vector<std::string> &args);

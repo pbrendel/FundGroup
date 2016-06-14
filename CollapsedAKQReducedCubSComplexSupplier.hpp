@@ -296,10 +296,10 @@ CollapsedAKQReducedCubSComplexSupplier<Traits>::CreateCell(CubCellSetPtr cubCell
     {
         if (cell->_faces.size() == 0)
         {
-            cell->_faces.push_back(_nullSetCell);
             //cell->_faces.push_back(_nullSetCell);
-            cell->_coefficients.push_back(0);
-            //cell->_coefficients.push_back(-1);
+            //cell->_faces.push_back(_nullSetCell);
+            //cell->_coefficients.push_back(1);
+            //cell->_coefficients.push_back(0);
         }
         else if (cell->_coefficients[0] == 1)
         {

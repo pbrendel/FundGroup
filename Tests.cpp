@@ -20,6 +20,7 @@
 ComplexType Tests::complexType = CT_SComplex;
 ReductionType Tests::reductionType = RT_Coreductions;
 std::string Tests::inputFilename = "tests.txt";
+std::string Tests::hapProgramFilename = "";
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -41,6 +42,7 @@ void Tests::PrintHelp()
     std::cout<<"               - 0 - no reductions"<<std::endl;
     std::cout<<"               - 1 - shaving + coreductions"<<std::endl;
     std::cout<<"               - 2 - shaving + coreductions + collapsible subcomplex (only for cubical complexes)"<<std::endl;
+    std::cout<<"  --h filename - write HAP program to the file ["<<hapProgramFilename<<"]"<<std::endl;
     std::cout<<std::endl;
     std::cout<<"possible input formats:"<<std::endl;
     std::cout<<"*.sim - list of maximal simplices"<<std::endl;
@@ -76,6 +78,11 @@ void Tests::ProcessArgument(std::vector<std::string> &args)
     {
         CC("rt", 1)
         reductionType = static_cast<ReductionType>(atoi(args[1].c_str()));
+    }
+    else if (arg == "h")
+    {
+        CC("h", 1)
+        hapProgramFilename = args[1];
     }
     else
     {
@@ -125,6 +132,12 @@ void Tests::TestFromCommandLine(int argc, char **argv)
 
     IFundGroup* fg = CreateFundGroupAlgorithm();
     logger.Log(FGLogger::Output)<<*fg<<std::endl;
+
+    if (hapProgramFilename != "")
+    {
+        fg->ExportHapProgram(hapProgramFilename.c_str());
+    }
+
     delete fg;
     logger.End();
 }

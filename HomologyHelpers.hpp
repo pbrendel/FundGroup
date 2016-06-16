@@ -20,7 +20,7 @@ std::vector<int> HomologyHelpers<Traits>::GetHomologySignature(SComplexType* com
     typedef typename Traits::IntType            Int;
 
     typedef BettiNumbers<SComplexType, Scalar, Int> BettiNumbersAlg;
-    BettiNumbersAlg alg(*complex);
+    BettiNumbersAlg alg(*complex, true);
     std::vector<Int> betti = alg();
 
     std::vector<int> res;

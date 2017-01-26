@@ -1,0 +1,9 @@
+L:=ReadLinkImageAsPureCubicalComplex("knot.eps");
+C:=ComplementOfPureCubicalComplex(L);
+M:=ZigZagContractedPureCubicalComplex(C);
+Y:=CubicalComplexToRegularCWComplex(M);
+CriticalCellsOfRegularCWComplex(Y);
+G:=FundamentalGroup(Y);
+RelatorsOfFpGroup(G);
+
+perl /cygdrive/c/gap4r6/pkg/Hap1.10/lib/PolyComplexes/prog tmp/im.txt >/tmp/im.g
